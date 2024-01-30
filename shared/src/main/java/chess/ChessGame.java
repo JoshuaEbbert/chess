@@ -9,25 +9,26 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-
+    private ChessBoard chessBoard;
+    private TeamColor teamTurn;
     public ChessGame() {
-
+        chessBoard = new ChessBoard();
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
-     * Set's which teams turn it is
+     * Sets which teams turn it is
      *
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
     }
 
     /**
@@ -66,7 +67,24 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = chessBoard.getKingPosition(teamColor);
+        System.out.println("King position: " + kingPosition);
+        for (ChessPiece.PieceType type: ChessPiece.PieceType.values()) {
+            System.out.println("About to check for " + type);
+            if (type == ChessPiece.PieceType.PAWN) {
+            } else {
+                for (ChessMove possibleMove : MovesCalculator.calculate(getBoard(), type, teamColor, kingPosition)) {
+                    System.out.println("About to test possibleMove: " + possibleMove.toString());
+                    if (chessBoard.getPiece(possibleMove.getEndPosition()) != null &&
+                            chessBoard.getPiece(possibleMove.getEndPosition()).getPieceType() == type) {
+                        return true;
+                    }
+                }
+            }
+            System.out.println("Finished checking for " + type + "!");
+        }
+
+        return false;
     }
 
     /**
@@ -96,7 +114,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.chessBoard = board;
     }
 
     /**
@@ -105,6 +123,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return chessBoard;
     }
 }

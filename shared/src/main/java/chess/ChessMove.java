@@ -12,14 +12,6 @@ public class ChessMove {
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
     private final ChessPiece.PieceType promotionPiece;
-    /**
-     * Creates a new chess move
-     *
-     * @param startPosition  The starting position of the piece to move
-     * @param endPosition    The ending position of the piece to move
-     * @param promotionPiece The type of piece to promote a pawn to if pawn promotion
-     *                       is part of this chess move?
-     */
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         this.startPosition = startPosition;
@@ -54,8 +46,7 @@ public class ChessMove {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessMove chessMove = (ChessMove) o;
+        if (!(o instanceof ChessMove chessMove)) return false;
         return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
     }
 
@@ -64,16 +55,18 @@ public class ChessMove {
         return Objects.hash(startPosition, endPosition, promotionPiece);
     }
 
-    @Override
-    public String toString() {
-        return "CM{" + startPosition + ", " + endPosition + ", " + promotionPiece + "}";
-    }
-
 //    @Override
 //    public String toString() {
-//        return "ChessMove{" +
-//                "startPosition=" + startPosition +
-//                ", endPosition=" + endPosition +
+//        return "CM{" + startPosition +
+//                ", " + endPosition +
+//                ", promotionPiece=" + promotionPiece +
 //                '}';
 //    }
+
+    @Override
+    public String toString() {
+        return "CM{" + startPosition +
+                ", " + endPosition +
+                '}';
+    }
 }
