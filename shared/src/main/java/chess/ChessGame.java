@@ -72,6 +72,41 @@ public class ChessGame {
         for (ChessPiece.PieceType type: ChessPiece.PieceType.values()) {
             System.out.println("About to check for " + type);
             if (type == ChessPiece.PieceType.PAWN) {
+                int kingRow = kingPosition.getRow();
+                int kingCol = kingPosition.getColumn();
+
+                if (teamColor == TeamColor.WHITE) {
+                    if (kingRow < 8) { // possible pawn attack
+                        if (kingCol > 1) { // possible front left attack
+                            if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)) != null &&
+                                    chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)).getPieceType() == type) {
+                                return true;
+                            }
+                        }
+                        if (kingCol < 8) { // possible front right attack
+                            if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol + 1)) != null &&
+                                    chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol + 1)).getPieceType() == type) {
+                                return true;
+                            }
+                        }
+                    }
+                } else { // BLACK
+                    if (kingRow > 1) { // possible pawn attack
+                        if (kingCol > 1) { // possible front left attack
+                            if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)) != null &&
+                                    chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)).getPieceType() == type) {
+                                return true;
+                            }
+                        }
+                        if (kingCol < 8) { // possible front right attack
+                            if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)) != null &&
+                                    chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)).getPieceType() == type) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
             } else {
                 for (ChessMove possibleMove : MovesCalculator.calculate(getBoard(), type, teamColor, kingPosition)) {
                     System.out.println("About to test possibleMove: " + possibleMove.toString());
