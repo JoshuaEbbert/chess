@@ -68,55 +68,21 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = chessBoard.getKingPosition(teamColor);
-        System.out.println("King position: " + kingPosition);
+//        System.out.println("King position: " + kingPosition);
         for (ChessPiece.PieceType type: ChessPiece.PieceType.values()) {
-            System.out.println("About to check for " + type);
+//            System.out.println("About to check for " + type);
             if (type == ChessPiece.PieceType.PAWN) {
-                int kingRow = kingPosition.getRow();
-                int kingCol = kingPosition.getColumn();
-
-                if (teamColor == TeamColor.WHITE) {
-                    if (kingRow < 8) { // possible pawn attack
-                        if (kingCol > 1) { // possible front left attack
-                            if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)) != null &&
-                                    chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)).getPieceType() == type) {
-                                return true;
-                            }
-                        }
-                        if (kingCol < 8) { // possible front right attack
-                            if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol + 1)) != null &&
-                                    chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol + 1)).getPieceType() == type) {
-                                return true;
-                            }
-                        }
-                    }
-                } else { // BLACK
-                    if (kingRow > 1) { // possible pawn attack
-                        if (kingCol > 1) { // possible front left attack
-                            if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)) != null &&
-                                    chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)).getPieceType() == type) {
-                                return true;
-                            }
-                        }
-                        if (kingCol < 8) { // possible front right attack
-                            if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)) != null &&
-                                    chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)).getPieceType() == type) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-
+                return checkPawns(kingPosition, teamColor);
             } else {
                 for (ChessMove possibleMove : MovesCalculator.calculate(getBoard(), type, teamColor, kingPosition)) {
-                    System.out.println("About to test possibleMove: " + possibleMove.toString());
+//                    System.out.println("About to test possibleMove: " + possibleMove.toString());
                     if (chessBoard.getPiece(possibleMove.getEndPosition()) != null &&
                             chessBoard.getPiece(possibleMove.getEndPosition()).getPieceType() == type) {
                         return true;
                     }
                 }
             }
-            System.out.println("Finished checking for " + type + "!");
+//            System.out.println("Finished checking for " + type + "!");
         }
 
         return false;
@@ -159,5 +125,43 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return chessBoard;
+    }
+
+    private boolean checkPawns(ChessPosition kingPosition, ChessGame.TeamColor teamColor) {
+        int kingRow = kingPosition.getRow();
+        int kingCol = kingPosition.getColumn();
+
+        if (teamColor == TeamColor.WHITE) {
+            if (kingRow < 8) { // possible pawn attack
+                if (kingCol > 1) { // possible front left attack
+                    if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)) != null &&
+                            chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
+                        return true;
+                    }
+                }
+                if (kingCol < 8) { // possible front right attack
+                    if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol + 1)) != null &&
+                            chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol + 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
+                        return true;
+                    }
+                }
+            }
+        } else { // BLACK
+            if (kingRow > 1) { // possible pawn attack
+                if (kingCol > 1) { // possible front left attack
+                    if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)) != null &&
+                            chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
+                        return true;
+                    }
+                }
+                if (kingCol < 8) { // possible front right attack
+                    if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)) != null &&
+                            chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
