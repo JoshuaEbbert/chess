@@ -112,10 +112,21 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
+
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "board=" + Arrays.toString(board) +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        for (int i = board.length - 1; i >= 0; i--) {
+            sb.append("|");
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == null) {
+                    sb.append(" |");
+                } else {
+                    sb.append(board[i][j].toChar() + "|");
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

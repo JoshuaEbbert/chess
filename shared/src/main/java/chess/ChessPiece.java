@@ -105,4 +105,27 @@ public class ChessPiece {
     public String toString() {
         return teamColor + " " + type;
     }
+
+    // Need to test
+    public String toChar() {
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            return switch (type) {
+                case KING -> "k";
+                case QUEEN -> "q";
+                case BISHOP -> "b";
+                case KNIGHT -> "n";
+                case ROOK -> "r";
+                case PAWN -> "p";
+            };
+        } else {
+            return switch (type) {
+                case KING -> "K";
+                case QUEEN -> "Q";
+                case BISHOP -> "B";
+                case KNIGHT -> "N";
+                case ROOK -> "R";
+                case PAWN -> "P";
+            };
+        }
+    }
 }
