@@ -78,7 +78,25 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        if (move == null) {
+            throw new InvalidMoveException("Invalid move: null move");
+        }
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
+        if (piece == null) {
+            throw new InvalidMoveException("Invalid move: no piece at start position");
+        }
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException("Invalid move: wrong team's turn");
+        }
+        if (!validMoves(start).contains(move)) {
+            throw new InvalidMoveException();
+        }
+
+        chessBoard.addPiece(end, piece);
+        chessBoard.addPiece(start, null);
+        teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -90,6 +108,9 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = chessBoard.getKingPosition(teamColor);
 //        System.out.println("King position: " + kingPosition);
+        if (kingPosition == null) {
+            return false; // adding this test case for odd pass off cases
+        }
         for (ChessPiece.PieceType type: ChessPiece.PieceType.values()) {
 //            System.out.println("About to check for " + type);
             if (type == ChessPiece.PieceType.PAWN) {

@@ -140,7 +140,8 @@ public class MovesCalculator {
             case PAWN:
                 if (teamColor == ChessGame.TeamColor.WHITE) {
                     // check if front space is open
-                    if (board.getPiece(new ChessPosition(row + 1, col)) == null) {
+                    if (row < 1 &&
+                            board.getPiece(new ChessPosition(row + 1, col)) == null) {
                         // add move
                         if (row + 1 == 8) {
                             promotionMove(moves, startPosition, row + 1, col);
@@ -158,7 +159,9 @@ public class MovesCalculator {
                         }
                     }
                     // take front left
-                    if (board.getPiece(new ChessPosition(row + 1, col - 1)) != null &&
+                    if (row < 8 &&
+                            col > 1 &&
+                            board.getPiece(new ChessPosition(row + 1, col - 1)) != null &&
                             board.getPiece(new ChessPosition(row + 1, col - 1)).getTeamColor() != teamColor) {
                         // add move
                         if (row + 1 == 8) {
@@ -171,7 +174,9 @@ public class MovesCalculator {
                     }
 
                     // take front right
-                    if (board.getPiece(new ChessPosition(row + 1, col + 1)) != null &&
+                    if (row < 8 &&
+                            col < 8 &&
+                            board.getPiece(new ChessPosition(row + 1, col + 1)) != null &&
                             board.getPiece(new ChessPosition(row + 1, col + 1)).getTeamColor() != teamColor) {
                         // add move
                         if (row + 1 == 8) {
@@ -184,7 +189,8 @@ public class MovesCalculator {
                     }
                 } else { // teamColor is BLACK
                     // check if front space is open
-                    if (board.getPiece(new ChessPosition(row - 1, col)) == null) {
+                    if (row > 1 &&
+                            board.getPiece(new ChessPosition(row - 1, col)) == null) {
                         // add move
                         if (row - 1 == 1) {
                             promotionMove(moves, startPosition, row - 1, col);
@@ -202,7 +208,9 @@ public class MovesCalculator {
                         }
                     }
                     // take front left
-                    if (board.getPiece(new ChessPosition(row - 1, col - 1)) != null &&
+                    if (row > 1 &&
+                            col > 1 &&
+                            board.getPiece(new ChessPosition(row - 1, col - 1)) != null &&
                             board.getPiece(new ChessPosition(row - 1, col - 1)).getTeamColor() != teamColor) {
                         // add move
                         if (row - 1 == 1) {
@@ -215,7 +223,9 @@ public class MovesCalculator {
                     }
 
                     // take front right
-                    if (board.getPiece(new ChessPosition(row - 1, col + 1)) != null &&
+                    if (row > 1 &&
+                            col < 8 &&
+                            board.getPiece(new ChessPosition(row - 1, col + 1)) != null &&
                             board.getPiece(new ChessPosition(row - 1, col + 1)).getTeamColor() != teamColor) {
                         // add move
                         if (row - 1 == 1) {

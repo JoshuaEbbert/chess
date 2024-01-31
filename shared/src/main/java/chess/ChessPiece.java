@@ -100,4 +100,9 @@ public class ChessPiece {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return teamColor + " " + type;
+    }
 }

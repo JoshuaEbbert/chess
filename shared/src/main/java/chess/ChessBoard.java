@@ -93,6 +93,7 @@ public class ChessBoard {
                     board[row][col].getPieceType() == ChessPiece.PieceType.KING &&
                     board[row][col].getTeamColor() == teamColor) {
                     kingPosition = new ChessPosition(row + 1, col + 1);
+                    break;
                 }
             }
         }
