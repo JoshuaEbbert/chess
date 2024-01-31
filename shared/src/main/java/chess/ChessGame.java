@@ -91,7 +91,11 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid move: wrong team's turn");
         }
         if (!validMoves(start).contains(move)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Invalid move: illegal move");
+        }
+
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
         }
 
         chessBoard.addPiece(end, piece);

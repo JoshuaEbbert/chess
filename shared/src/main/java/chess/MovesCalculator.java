@@ -140,7 +140,7 @@ public class MovesCalculator {
             case PAWN:
                 if (teamColor == ChessGame.TeamColor.WHITE) {
                     // check if front space is open
-                    if (row < 1 &&
+                    if (row < 8 &&
                             board.getPiece(new ChessPosition(row + 1, col)) == null) {
                         // add move
                         if (row + 1 == 8) {
