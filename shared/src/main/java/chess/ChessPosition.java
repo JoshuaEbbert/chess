@@ -26,8 +26,8 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "CP{" + col +
-                "," + row +
+        return "CP{" + row +
+                "," + col +
                 '}';
     }
 

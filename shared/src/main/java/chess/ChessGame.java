@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -47,7 +48,27 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = chessBoard.getPiece(startPosition);
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        if (piece == null) { return null; }
+
+        for (ChessMove move: MovesCalculator.calculate(chessBoard, piece.getPieceType(), piece.getTeamColor(), startPosition)) {
+            chessBoard.addPiece(startPosition, null);
+            ChessPiece tmp = null;
+            if (chessBoard.getPiece(move.getEndPosition()) != null) {
+                tmp = chessBoard.getPiece(move.getEndPosition());
+            }
+            chessBoard.addPiece(move.getEndPosition(), piece);
+
+            if (!isInCheck(piece.getTeamColor())) {
+                validMoves.add(move);
+            }
+
+            chessBoard.addPiece(startPosition, piece);
+            chessBoard.addPiece(move.getEndPosition(), tmp);
+        }
+
+        return validMoves;
     }
 
     /**
@@ -132,10 +153,10 @@ public class ChessGame {
         int kingCol = kingPosition.getColumn();
 
         if (teamColor == TeamColor.WHITE) {
-            if (kingRow < 8) { // possible pawn attack
+            if (kingRow < 7) { // possible pawn attack
                 if (kingCol > 1) { // possible front left attack
-                    if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)) != null &&
-                            chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
+                    if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)) != null &&
+                            chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
                         return true;
                     }
                 }
@@ -147,7 +168,7 @@ public class ChessGame {
                 }
             }
         } else { // BLACK
-            if (kingRow > 1) { // possible pawn attack
+            if (kingRow > 2) { // possible pawn attack
                 if (kingCol > 1) { // possible front left attack
                     if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)) != null &&
                             chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol - 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
@@ -155,8 +176,8 @@ public class ChessGame {
                     }
                 }
                 if (kingCol < 8) { // possible front right attack
-                    if (chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)) != null &&
-                            chessBoard.getPiece(new ChessPosition(kingRow + 1, kingCol - 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
+                    if (chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)) != null &&
+                            chessBoard.getPiece(new ChessPosition(kingRow - 1, kingCol + 1)).getPieceType() == ChessPiece.PieceType.PAWN) {
                         return true;
                     }
                 }
