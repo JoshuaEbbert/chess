@@ -111,24 +111,24 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = chessBoard.getKingPosition(teamColor);
-        System.out.println("King position: " + kingPosition);
+//        System.out.println("King position: " + kingPosition);
         if (kingPosition == null) {
             return false; // adding this test case for odd pass off cases
         }
         for (ChessPiece.PieceType type: ChessPiece.PieceType.values()) {
-            System.out.println("About to check for " + type);
+//            System.out.println("About to check for " + type);
             if (type == ChessPiece.PieceType.PAWN) {
                 return checkPawns(kingPosition, teamColor);
             } else {
                 for (ChessMove possibleMove : MovesCalculator.calculate(getBoard(), type, teamColor, kingPosition)) {
-                    System.out.println("About to test possibleMove: " + possibleMove.toString());
+//                    System.out.println("About to test possibleMove: " + possibleMove.toString());
                     if (chessBoard.getPiece(possibleMove.getEndPosition()) != null &&
                             chessBoard.getPiece(possibleMove.getEndPosition()).getPieceType() == type) {
                         return true;
                     }
                 }
             }
-            System.out.println("Finished checking for " + type + "!");
+//            System.out.println("Finished checking for " + type + "!");
         }
 
         return false;
