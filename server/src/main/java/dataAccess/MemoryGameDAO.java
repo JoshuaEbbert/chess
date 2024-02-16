@@ -6,15 +6,15 @@ import model.GameData;
 import java.util.HashSet;
 
 public class MemoryGameDAO implements GameDAO {
-    HashSet<GameData> games = new HashSet<GameData>();
+    static HashSet<GameData> games = new HashSet<GameData>();
 
-    public int createGame(String gameName) throws DataAccessException {
+    public static int createGame(String gameName) throws DataAccessException {
         int gameID = games.size();
         games.add(new GameData(gameID, null, null, gameName, new ChessGame()));
         return gameID;
     }
 
-    public GameData getGame(int gameID) throws DataAccessException {
+    public static GameData getGame(int gameID) throws DataAccessException {
         for (GameData g : games) {
             if (g.gameID() == gameID) {
                 return g;
@@ -24,11 +24,11 @@ public class MemoryGameDAO implements GameDAO {
         throw new DataAccessException("Game not found");
     }
 
-    public HashSet<GameData> listGames() throws DataAccessException {
+    public static HashSet<GameData> listGames() throws DataAccessException {
         return games;
     }
 
-    public void updateGame(int gameID, ChessGame updatedGame) throws DataAccessException {
+    public static void updateGame(int gameID, ChessGame updatedGame) throws DataAccessException {
         for (GameData g : games) {
             if (g.gameID() == gameID) {
                 games.remove(g);
@@ -40,7 +40,7 @@ public class MemoryGameDAO implements GameDAO {
         throw new DataAccessException("Game not found");
     }
 
-    public void clear() throws DataAccessException {
+    public static void clear() throws DataAccessException {
         games.clear();
     }
 }
