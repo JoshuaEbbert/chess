@@ -8,13 +8,15 @@ import java.util.UUID;
 public class MemoryAuthDAO implements AuthDAO {
     private static HashSet<AuthData> auths = new HashSet<AuthData>();
 
-    public static void createAuth(String username) throws DataAccessException {
-        auths.add(new AuthData(UUID.randomUUID().toString(), username));
+    public static AuthData createAuth(String username) throws DataAccessException {
+        AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
+        auths.add(newAuth);
+        return newAuth;
     }
 
-    public static void deleteAuth(String authToken) throws DataAccessException {
+    public static void deleteAuth(String username) throws DataAccessException {
         for (AuthData a : auths) {
-            if (a.authToken().equals(authToken)) {
+            if (a.username().equals(username)) {
                 auths.remove(a);
                 return;
             }
@@ -31,5 +33,9 @@ public class MemoryAuthDAO implements AuthDAO {
         }
 
         throw new DataAccessException("Auth not found");
+    }
+
+    public static void clear() throws DataAccessException {
+        auths.clear();
     }
 }
