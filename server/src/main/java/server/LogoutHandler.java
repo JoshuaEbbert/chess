@@ -18,8 +18,7 @@ public class LogoutHandler extends Handler {
     public String handle(spark.Request req, spark.Response res) throws DataAccessException {
         String authToken = authorize(req);
 
-        UserService service = new UserService();
-        service.logout(new AuthData(authToken, ""));
+        userService.logout(new AuthData(authToken, ""));
 
         return gson.toJson(Map.of());
     }

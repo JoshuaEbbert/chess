@@ -20,9 +20,8 @@ public class LoginHandler extends Handler {
             throw new DataAccessException("bad request");
         }
 
-        UserService service = new UserService();
-        AuthData auth = service.login(request);
+        AuthData auth = userService.login(request);
 
-        return new Gson().toJson(Map.of("username", request.username(), "authToken", auth.authToken()));
+        return gson.toJson(Map.of("username", request.username(), "authToken", auth.authToken()));
     }
 }

@@ -11,7 +11,7 @@ public class MemoryGameDAO implements GameDAO {
     static HashSet<GameData> games = new HashSet<GameData>();
 
     public static int createGame(String gameName) throws DataAccessException {
-        int gameID = games.size();
+        int gameID = games.size() + 1000;
         games.add(new GameData(gameID, null, null, gameName, new ChessGame()));
         return gameID;
     }

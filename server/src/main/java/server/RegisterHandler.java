@@ -13,7 +13,6 @@ import java.util.Map;
 
 public class RegisterHandler extends Handler {
     private static final RegisterHandler instance = new RegisterHandler();
-    private static final Gson gson = new Gson();
     public static RegisterHandler getInstance() {
         return instance;
     }
@@ -23,9 +22,8 @@ public class RegisterHandler extends Handler {
             throw new DataAccessException("bad request");
         }
 
-        UserService service = new UserService();
-        AuthData auth = service.register(request);
+        AuthData auth = userService.register(request);
 
-        return new Gson().toJson(Map.of("username", request.username(), "authToken", auth.authToken()));
+        return gson.toJson(Map.of("username", request.username(), "authToken", auth.authToken()));
     }
 }

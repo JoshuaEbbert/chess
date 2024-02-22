@@ -14,8 +14,7 @@ public class ListGamesHandler extends Handler {
     }
     public String handle(spark.Request req, spark.Response res) throws DataAccessException {
         String authtoken = authorize(req);
-        GameService service = new GameService();
-        ArrayList<Map<String, Object>> gamesList = service.listGames(authtoken);
+        ArrayList<Map<String, Object>> gamesList = gameService.listGames(authtoken);
 
         return gson.toJson(Map.of("games", gamesList));
     }
