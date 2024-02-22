@@ -17,8 +17,6 @@ public class GameService extends BaseService{
         MemoryAuthDAO.verifyAuth(authToken);
 
         return MemoryGameDAO.listGames();
-//        Add this line to ListGamesHandler
-//        return new Gson().toJson(Map.of("games", gamesList));
     }
 
     public int createGame(String authToken, String gameName) throws DataAccessException {

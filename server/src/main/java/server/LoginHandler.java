@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class LoginHandler extends Handler {
     private static final LoginHandler instance = new LoginHandler();
-    private static final Gson gson = new Gson();
     public static LoginHandler getInstance() {
         return instance;
     }

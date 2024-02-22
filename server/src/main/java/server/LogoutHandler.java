@@ -12,19 +12,15 @@ import java.util.Map;
 
 public class LogoutHandler extends Handler {
     private static final LogoutHandler instance = new LogoutHandler();
-    private static final Gson gson = new Gson();
     public static LogoutHandler getInstance() {
         return instance;
     }
     public String handle(spark.Request req, spark.Response res) throws DataAccessException {
-        String authToken = req.headers("Authorization");
-        if (!MemoryAuthDAO.listAuthTokens().contains(authToken)) {
-            throw new DataAccessException("unauthorized");
-        }
+        String authToken = authorize(req);
 
         UserService service = new UserService();
         service.logout(new AuthData(authToken, ""));
 
-        return new Gson().toJson(Map.of());
+        return gson.toJson(Map.of());
     }
 }
