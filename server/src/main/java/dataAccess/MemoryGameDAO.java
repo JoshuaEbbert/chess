@@ -3,7 +3,9 @@ package dataAccess;
 import chess.ChessGame;
 import model.GameData;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO {
     static HashSet<GameData> games = new HashSet<GameData>();
@@ -24,8 +26,13 @@ public class MemoryGameDAO implements GameDAO {
         throw new DataAccessException("Game not found");
     }
 
-    public static HashSet<GameData> listGames() throws DataAccessException {
-        return games;
+    public static ArrayList<Map<String, Object>> listGames() throws DataAccessException {
+        ArrayList<Map<String, Object>> gamesList = new ArrayList<Map<String, Object>>();
+        for (GameData g : games) {
+            gamesList.add(Map.of("gameID", g.gameID(), "whiteUsername", g.whiteUsername(), "blackUsername", g.blackUsername(), "gameName", g.gameName()));
+        }
+
+        return gamesList;
     }
 
     public static void updateGame(int gameID, ChessGame updatedGame) throws DataAccessException {

@@ -17,13 +17,13 @@ public class LogoutHandler extends Handler {
         return instance;
     }
     public String handle(spark.Request req, spark.Response res) throws DataAccessException {
-        AuthData request = gson.fromJson(req.body(), AuthData.class);
-        if (!MemoryAuthDAO.listAuthTokens().contains(request.authToken())) {
+        String authToken = req.headers("Authorization");
+        if (!MemoryAuthDAO.listAuthTokens().contains(authToken)) {
             throw new DataAccessException("unauthorized");
         }
 
         UserService service = new UserService();
-        service.logout(new AuthData(request.authToken(), ""));
+        service.logout(new AuthData(authToken, ""));
 
         return new Gson().toJson(Map.of());
     }

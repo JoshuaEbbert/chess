@@ -1,17 +1,29 @@
 package service;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
+import dataAccess.DataAccessException;
+import dataAccess.MemoryAuthDAO;
+import dataAccess.MemoryGameDAO;
+import model.AuthData;
 import model.GameData;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 public class GameService extends BaseService{
-    public HashSet<GameData> listGames(String authToken) {
-        throw new UnsupportedOperationException();
+    public ArrayList<Map<String, Object>> listGames(String authToken) throws DataAccessException {
+        MemoryAuthDAO.verifyAuth(authToken);
+
+        return MemoryGameDAO.listGames();
+//        Add this line to ListGamesHandler
+//        return new Gson().toJson(Map.of("games", gamesList));
     }
 
-    public int createGame(String authToken, String gameName) {
-        throw new UnsupportedOperationException();
+    public int createGame(String authToken, String gameName) throws DataAccessException {
+        MemoryAuthDAO.verifyAuth(authToken);
+        return MemoryGameDAO.createGame(gameName);
     }
 
     public void joinGame(String authToken, ChessGame.TeamColor clientColor, int gameID) {
