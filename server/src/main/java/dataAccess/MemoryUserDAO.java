@@ -18,7 +18,7 @@ public class MemoryUserDAO implements UserDAO {
             }
         }
 
-        throw new DataAccessException("User not found");
+        return null;
     }
 
     public static HashSet<UserData> listUsers() throws DataAccessException {

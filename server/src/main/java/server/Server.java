@@ -16,6 +16,7 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         // For example: Spark.get("/hello", (req, res) -> "Hello BYU!");
         Spark.delete("/db", (req, res) -> ClearHandler.getInstance().handle(req, res));
+        Spark.post("/user", (req, res) -> RegisterHandler.getInstance().handle(req, res));
         Spark.exception(Exception.class, (e, req, res) -> res.body(exceptionHandler(e, req, res)));
 
         Spark.awaitInitialization();
