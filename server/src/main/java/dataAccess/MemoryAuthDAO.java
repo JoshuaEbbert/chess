@@ -3,6 +3,7 @@ package dataAccess;
 import model.AuthData;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
@@ -37,5 +38,9 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public static void clear() throws DataAccessException {
         auths.clear();
+    }
+
+    public static HashSet<AuthData> listAuths() {
+        return auths;
     }
 }
