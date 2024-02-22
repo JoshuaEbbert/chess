@@ -35,7 +35,20 @@ public class Server {
     }
 
     public static String exceptionHandler(Exception e, spark.Request req, spark.Response res) {
-        res.status(500);
+        switch (e.getMessage()) {
+            case "bad request":
+                res.status(400);
+                break;
+
+            case "already taken":
+                res.status(403);
+                break;
+
+            default:
+                res.status(500);
+                break;
+        }
+
         return new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage())));
     }
 

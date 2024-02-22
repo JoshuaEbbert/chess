@@ -10,7 +10,7 @@ public class UserService extends BaseService{
     public AuthData register(UserData user) throws DataAccessException {
         UserData verifiedUser = MemoryUserDAO.getUser(user.username());
         if (verifiedUser != null) {
-            throw new DataAccessException("User already exists");
+            throw new DataAccessException("already taken");
         } else {
             MemoryUserDAO.createUser(user.username(), user.password(), user.email());
             return MemoryAuthDAO.createAuth(user.username());

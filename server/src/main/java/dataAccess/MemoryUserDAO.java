@@ -11,7 +11,7 @@ public class MemoryUserDAO implements UserDAO {
         users.add(new UserData(username, password, email));
     }
 
-    public static UserData getUser(String username) throws DataAccessException {
+    public static UserData getUser(String username) {
         for (UserData u : users) {
             if (u.username().equals(username)) {
                 return u;
@@ -21,7 +21,7 @@ public class MemoryUserDAO implements UserDAO {
         return null;
     }
 
-    public static HashSet<UserData> listUsers() throws DataAccessException {
+    public static HashSet<UserData> listUsers() {
         return users;
     }
 

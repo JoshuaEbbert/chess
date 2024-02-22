@@ -18,7 +18,7 @@ public class ClearHandler extends Handler {
         BaseService service = new BaseService();
         service.clear();
 
-        ClearResponse response = new ClearResponse("Success");
-        return gson.toJson(response);
+//        ServiceResponse response = new ServiceResponse("Success");
+        return gson.toJson("");
     }
 }
