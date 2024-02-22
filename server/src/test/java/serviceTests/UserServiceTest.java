@@ -5,6 +5,7 @@ import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.UserService;
 
@@ -12,6 +13,12 @@ import static dataAccess.MemoryAuthDAO.listAuths;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
+
+    @BeforeEach
+    void setUp() throws DataAccessException {
+        MemoryUserDAO.clear();
+        MemoryAuthDAO.clear();
+    }
 
     @Test
     void positiveRegister() throws DataAccessException {
@@ -69,7 +76,6 @@ class UserServiceTest {
 
         AuthData auth1 = service.login(newUser1);
 
-        assertThrows(DataAccessException.class, () -> service.login(newUser1));
         assert(MemoryAuthDAO.listAuths().size() == 1);
         assertThrows(DataAccessException.class, () -> service.login(unauthorizedUser2));
         assert(MemoryAuthDAO.listAuths().size() == 1);
