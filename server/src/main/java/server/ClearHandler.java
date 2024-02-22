@@ -6,6 +6,8 @@ import service.BaseService;
 import spark.Request;
 import spark.Response;
 
+import java.util.Map;
+
 public class ClearHandler extends Handler {
     private static final ClearHandler instance = new ClearHandler();
     private static final Gson gson = new Gson();
@@ -18,7 +20,6 @@ public class ClearHandler extends Handler {
         BaseService service = new BaseService();
         service.clear();
 
-//        ServiceResponse response = new ServiceResponse("Success");
-        return gson.toJson("");
+        return gson.toJson(Map.of());
     }
 }

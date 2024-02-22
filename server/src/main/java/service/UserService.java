@@ -16,12 +16,16 @@ public class UserService extends BaseService{
             return MemoryAuthDAO.createAuth(user.username());
         }
     }
-//    public AuthData login(UserData loginAttempt) throws DataAccessException {
-//        UserData verifiedUser = MemoryUserDAO.getUser(loginAttempt.username());
-//        return MemoryAuthDAO.createAuth(verifiedUser.username());
-//    }
-//    public void logout(UserData loginAttempt) throws DataAccessException {
-//        UserData verifiedUser = MemoryUserDAO.getUser(loginAttempt.username());
-//        MemoryAuthDAO.deleteAuth(verifiedUser.username());
-//    }
+    public AuthData login(UserData loginAttempt) throws DataAccessException {
+        UserData verifiedUser = MemoryUserDAO.getUser(loginAttempt.username());
+        if (verifiedUser == null || !verifiedUser.password().equals(loginAttempt.password())) {
+            throw new DataAccessException("unauthorized");
+        } else {
+            return MemoryAuthDAO.createAuth(verifiedUser.username());
+        }
+    }
+
+    public void logout(AuthData logout) throws DataAccessException {
+        MemoryAuthDAO.deleteAuth(logout.authToken()); //
+    }
 }

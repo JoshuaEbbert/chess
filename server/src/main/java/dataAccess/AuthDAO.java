@@ -2,6 +2,8 @@ package dataAccess;
 
 import model.AuthData;
 
+import java.util.HashSet;
+
 public interface AuthDAO {
     static void createAuth(String username) throws DataAccessException {
 
@@ -17,5 +19,13 @@ public interface AuthDAO {
 
     static void clear() throws DataAccessException {
 
+    }
+
+    static HashSet<String> listUsernames() {
+        return null;
+    }
+
+    static HashSet<String> listAuthTokens() {
+        return null;
     }
 }

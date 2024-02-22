@@ -2,6 +2,7 @@ package dataAccess;
 
 import model.AuthData;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
@@ -15,15 +16,15 @@ public class MemoryAuthDAO implements AuthDAO {
         return newAuth;
     }
 
-    public static void deleteAuth(String username) throws DataAccessException {
+    public static void deleteAuth(String authIdentifier) throws DataAccessException {
         for (AuthData a : auths) {
-            if (a.username().equals(username)) {
+            if (a.username().equals(authIdentifier) || a.authToken().equals(authIdentifier)) {
                 auths.remove(a);
                 return;
             }
         }
 
-        throw new DataAccessException("Auth not found");
+        throw new DataAccessException("unauthorized");
     }
 
     public static AuthData verifyAuth(String authToken) throws DataAccessException {
@@ -33,7 +34,7 @@ public class MemoryAuthDAO implements AuthDAO {
             }
         }
 
-        throw new DataAccessException("Auth not found");
+        throw new DataAccessException("unauthorized");
     }
 
     public static void clear() throws DataAccessException {
@@ -42,5 +43,21 @@ public class MemoryAuthDAO implements AuthDAO {
 
     public static HashSet<AuthData> listAuths() {
         return auths;
+    }
+
+    public static HashSet<String> listUsernames() {
+        HashSet<String> usernames = new HashSet<String>();
+        for (AuthData a : auths) {
+            usernames.add(a.username());
+        }
+        return usernames;
+    }
+
+    public static HashSet<String> listAuthTokens() {
+        HashSet<String> authTokens = new HashSet<String>();
+        for (AuthData a : auths) {
+            authTokens.add(a.authToken());
+        }
+        return authTokens;
     }
 }
