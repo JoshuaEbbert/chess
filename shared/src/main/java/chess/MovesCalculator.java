@@ -193,10 +193,8 @@ public class MovesCalculator {
 
     private static void calculatePawn(int row, int col, ChessBoard board, ChessGame.TeamColor teamColor, HashSet<ChessMove> moves, ChessPosition startPosition) {
         if (teamColor == ChessGame.TeamColor.WHITE) {
-            // check if front space is open
             if (row < 8 &&
-                    board.getPiece(new ChessPosition(row + 1, col)) == null) {
-                // add move
+                    board.getPiece(new ChessPosition(row + 1, col)) == null) { // check if front space is open. if so, add move
                 if (row + 1 == 8) {
                     promotionMove(moves, startPosition, row + 1, col);
                 } else {
@@ -204,15 +202,12 @@ public class MovesCalculator {
                             new ChessPosition(row + 1, col),
                             null));
                 }
-
-                // check if eligible for initial double move
-                if (notYetMoved(startPosition, teamColor) && board.getPiece(new ChessPosition(row + 2, col)) == null) {
+                if (notYetMoved(startPosition, teamColor) && board.getPiece(new ChessPosition(row + 2, col)) == null) { // check if eligible for initial double move
                     moves.add(new ChessMove(new ChessPosition(row, col),
                             new ChessPosition(row + 2, col),
                             null));
                 }
-            }
-            // take front left
+            } // now take front left
             if (row < 8 &&
                     col > 1 &&
                     board.getPiece(new ChessPosition(row + 1, col - 1)) != null &&
@@ -227,11 +222,10 @@ public class MovesCalculator {
                 }
             }
 
-            // take front right
             if (row < 8 &&
                     col < 8 &&
                     board.getPiece(new ChessPosition(row + 1, col + 1)) != null &&
-                    board.getPiece(new ChessPosition(row + 1, col + 1)).getTeamColor() != teamColor) {
+                    board.getPiece(new ChessPosition(row + 1, col + 1)).getTeamColor() != teamColor) { // take front right
                 // add move
                 if (row + 1 == 8) {
                     promotionMove(moves, startPosition, row + 1, col + 1);

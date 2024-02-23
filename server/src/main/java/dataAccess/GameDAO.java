@@ -19,10 +19,6 @@ public interface GameDAO {
         return null;
     }
 
-    static void updateGame(int gameID, ChessGame updatedGame) throws DataAccessException {
-
-    }
-
     static void clear() throws DataAccessException {
 
     }

@@ -20,12 +20,4 @@ public interface AuthDAO {
     static void clear() throws DataAccessException {
 
     }
-
-    static HashSet<String> listUsernames() {
-        return null;
-    }
-
-    static HashSet<String> listAuthTokens() {
-        return null;
-    }
 }
