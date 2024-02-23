@@ -14,7 +14,6 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        // For example: Spark.get("/hello", (req, res) -> "Hello BYU!");
         Spark.delete("/db", (req, res) -> ClearHandler.getInstance().handle(req, res));
         Spark.delete("/session", (req, res) -> LogoutHandler.getInstance().handle(req, res));
         Spark.post("/user", (req, res) -> RegisterHandler.getInstance().handle(req, res));
@@ -60,12 +59,4 @@ public class Server {
 
         return new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage())));
     }
-
-//    private static <T> T getBody(Request request, Class<T> clazz) {
-//        var body = new Gson().fromJson(request.body(), clazz);
-//        if (body == null) {
-//            throw new RuntimeException("missing required body");
-//        }
-//        return body;
-//    }
 }

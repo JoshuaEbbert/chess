@@ -6,8 +6,4 @@ public class ClearRequest extends Request {
     public ClearRequest(String authToken) {
         this.authToken = authToken;
     }
-
-    public String getAuthToken() {
-        return authToken;
-    }
 }
