@@ -21,6 +21,9 @@ public class GameService extends BaseService{
 
     public int createGame(String authToken, String gameName) throws DataAccessException {
         MemoryAuthDAO.verifyAuth(authToken);
+        if (MemoryGameDAO.getGame(gameName) != null) {
+            throw new DataAccessException("already taken");
+        }
         return MemoryGameDAO.createGame(gameName);
     }
 

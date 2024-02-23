@@ -16,6 +16,15 @@ public class MemoryGameDAO implements GameDAO {
         return gameID;
     }
 
+    public static GameData getGame(String gameName) throws DataAccessException {
+        for (GameData g : games) {
+            if (g.gameName().equals(gameName)) {
+                return g;
+            }
+        }
+
+        return null;
+    }
     public static GameData getGame(int gameID) throws DataAccessException {
         for (GameData g : games) {
             if (g.gameID() == gameID) {
@@ -23,13 +32,17 @@ public class MemoryGameDAO implements GameDAO {
             }
         }
 
-        throw new DataAccessException("Game not found");
+        return null;
     }
 
     public static ArrayList<Map<String, Object>> listGames() throws DataAccessException {
         ArrayList<Map<String, Object>> gamesList = new ArrayList<Map<String, Object>>();
+
         for (GameData g : games) {
-            gamesList.add(Map.of("gameID", g.gameID(), "whiteUsername", g.whiteUsername(), "blackUsername", g.blackUsername(), "gameName", g.gameName()));
+            String whiteUsername = g.whiteUsername() == null ? "" : g.whiteUsername();
+            String blackUsername = g.blackUsername() == null ? "" : g.blackUsername();
+            Map<String, Object> gameDict = Map.of("gameID", g.gameID(), "whiteUsername", whiteUsername, "blackUsername", blackUsername, "gameName", g.gameName());
+            gamesList.add(gameDict);
         }
 
         return gamesList;
