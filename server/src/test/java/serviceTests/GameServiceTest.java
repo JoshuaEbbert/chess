@@ -19,6 +19,7 @@ class GameServiceTest {
     void setUp() throws DataAccessException {
         MemoryUserDAO.clear();
         MemoryAuthDAO.clear();
+        MemoryGameDAO.clear();
     }
 
     @Test
