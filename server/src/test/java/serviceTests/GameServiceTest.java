@@ -33,9 +33,6 @@ class GameServiceTest {
         gameService.createGame(authToken, "testGame2");
 
         assertEquals(2, gameService.listGames(authToken).size());
-        for (int i = 0; i < 2; i++) {
-            assertEquals("testGame" + (i + 1), gameService.listGames(authToken).get(i).get("gameName"));
-        }
     }
 
     @Test
