@@ -2,8 +2,10 @@ package serviceTests;
 
 import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
+import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,6 +75,44 @@ class GameServiceTest {
     }
 
     @Test
-    void joinGame() {
+    void positiveJoinGame() throws DataAccessException {
+        GameService gameService = new GameService();
+        UserService userService = new UserService();
+
+        AuthData authData = userService.register(new UserData("testUser", "testPassword", "testEmail"));
+        String authToken = authData.authToken();
+        gameService.createGame(authToken, "testGame1");
+        gameService.createGame(authToken, "testGame2");
+
+        gameService.joinGame(authToken, "WHITE", 1000);
+        gameService.joinGame(authToken, "BLACK", 1001);
+
+        GameData game = MemoryGameDAO.getGame(1000);
+        assert(game.whiteUsername().equals("testUser"));
+        assertNull(game.blackUsername());
+
+        GameData game2 = MemoryGameDAO.getGame(1001);
+        assertNull(game2.whiteUsername());
+        assert(game2.blackUsername().equals("testUser"));
+
+        gameService.joinGame(authToken, null, 1001);
+        assertNull(MemoryGameDAO.getGame(1001).whiteUsername());
+    }
+
+    @Test
+    void negativeJoinGame() throws DataAccessException {
+        GameService gameService = new GameService();
+        UserService userService = new UserService();
+
+        AuthData authData = userService.register(new UserData("testUser", "testPassword", "testEmail"));
+        String authToken = authData.authToken();
+        gameService.createGame(authToken, "testGame1");
+        gameService.createGame(authToken, "testGame2");
+
+        gameService.joinGame(authToken, "WHITE", 1000);
+        gameService.joinGame(authToken, "BLACK", 1001);
+        assertThrows(DataAccessException.class, () -> gameService.joinGame(authToken, "WHITE", 1000));
+        assertThrows(DataAccessException.class, () -> gameService.joinGame(authToken, "BLACK", 1001));
+        assertThrows(DataAccessException.class, () -> gameService.joinGame(authToken, "WHITE", 1002));
     }
 }

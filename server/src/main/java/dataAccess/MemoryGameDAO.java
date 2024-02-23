@@ -4,6 +4,7 @@ import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -39,9 +40,11 @@ public class MemoryGameDAO implements GameDAO {
         ArrayList<Map<String, Object>> gamesList = new ArrayList<Map<String, Object>>();
 
         for (GameData g : games) {
-            String whiteUsername = g.whiteUsername() == null ? "" : g.whiteUsername();
-            String blackUsername = g.blackUsername() == null ? "" : g.blackUsername();
-            Map<String, Object> gameDict = Map.of("gameID", g.gameID(), "whiteUsername", whiteUsername, "blackUsername", blackUsername, "gameName", g.gameName());
+            Map<String, Object> gameDict = new HashMap<>();
+            gameDict.put("gameID", g.gameID());
+            gameDict.put("whiteUsername", g.whiteUsername());
+            gameDict.put("blackUsername", g.blackUsername());
+            gameDict.put("gameName", g.gameName());
             gamesList.add(gameDict);
         }
 
@@ -58,6 +61,21 @@ public class MemoryGameDAO implements GameDAO {
         }
 
         throw new DataAccessException("Game not found");
+    }
+
+    public static void addPlayer(String playerColor, int gameID, String username) throws DataAccessException {
+        for (GameData g : games) {
+            if (g.gameID() == gameID) {
+                if (playerColor.equals("WHITE")) {
+                    games.remove(g);
+                    games.add(new GameData(gameID, username, g.blackUsername(), g.gameName(), g.game()));
+                } else if (playerColor.equals("BLACK")) {
+                    games.remove(g);
+                    games.add(new GameData(gameID, g.whiteUsername(), username, g.gameName(), g.game()));
+                }
+                return;
+            }
+        }
     }
 
     public static void clear() throws DataAccessException {

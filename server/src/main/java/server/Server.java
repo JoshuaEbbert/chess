@@ -21,6 +21,7 @@ public class Server {
         Spark.post("/session", (req, res) -> LoginHandler.getInstance().handle(req, res));
         Spark.get("/game", (req, res) -> ListGamesHandler.getInstance().handle(req, res));
         Spark.post("/game", (req, res) -> CreateGameHandler.getInstance().handle(req, res));
+        Spark.put("/game", (req, res) -> JoinGameHandler.getInstance().handle(req, res));
         Spark.exception(Exception.class, (e, req, res) -> res.body(exceptionHandler(e, req, res)));
 
         Spark.awaitInitialization();
