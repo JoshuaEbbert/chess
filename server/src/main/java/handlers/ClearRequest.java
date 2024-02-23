@@ -1,4 +1,4 @@
-package server;
+package handlers;
 
 public class ClearRequest extends Request {
     private final String authToken;

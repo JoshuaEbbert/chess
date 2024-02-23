@@ -1,8 +1,6 @@
-package server;
+package handlers;
 
 import dataAccess.DataAccessException;
-import service.GameService;
-import service.UserService;
 
 import java.util.ArrayList;
 import java.util.Map;

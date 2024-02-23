@@ -1,11 +1,7 @@
-package server;
+package handlers;
 
 import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import model.GameData;
-import dataAccess.MemoryGameDAO;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class JoinGameHandler extends Handler {

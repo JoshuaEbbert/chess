@@ -1,4 +1,4 @@
-package server;
+package handlers;
 
 public class JoinGameRequest extends Request {
     private final int gameID;

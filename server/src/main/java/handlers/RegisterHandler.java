@@ -1,11 +1,8 @@
-package server;
+package handlers;
 
-import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import service.BaseService;
-import service.UserService;
 import spark.Request;
 import spark.Response;
 
