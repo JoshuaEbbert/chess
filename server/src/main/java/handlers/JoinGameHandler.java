@@ -1,6 +1,7 @@
 package handlers;
 
 import dataAccess.DataAccessException;
+import requests.JoinGameRequest;
 
 import java.util.Map;
 
