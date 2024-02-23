@@ -21,10 +21,6 @@ public class MemoryUserDAO implements UserDAO {
         return null;
     }
 
-    public static HashSet<UserData> listUsers() {
-        return users;
-    }
-
     public static void clear() throws DataAccessException {
         users.clear();
     }

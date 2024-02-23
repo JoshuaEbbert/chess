@@ -44,20 +44,4 @@ public class MemoryAuthDAO implements AuthDAO {
     public static HashSet<AuthData> listAuths() {
         return auths;
     }
-
-    public static HashSet<String> listUsernames() {
-        HashSet<String> usernames = new HashSet<String>();
-        for (AuthData a : auths) {
-            usernames.add(a.username());
-        }
-        return usernames;
-    }
-
-    public static HashSet<String> listAuthTokens() {
-        HashSet<String> authTokens = new HashSet<String>();
-        for (AuthData a : auths) {
-            authTokens.add(a.authToken());
-        }
-        return authTokens;
-    }
 }

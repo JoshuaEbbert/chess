@@ -21,7 +21,6 @@ public class ClearTests {
 
         assertEquals(0, MemoryGameDAO.listGames().size());
         assertEquals(0, MemoryAuthDAO.listAuths().size());
-        assertEquals(0, MemoryUserDAO.listUsers().size());
     }
 
     // Dr. Rodham said that we don't need to test the negative case for this method.

@@ -32,7 +32,6 @@ class UserServiceTest {
         service.register(newUser2);
 
         assertEquals(newUser2, MemoryUserDAO.getUser("kate"));
-        assertEquals(2, MemoryUserDAO.listUsers().size());
     }
 
     @Test

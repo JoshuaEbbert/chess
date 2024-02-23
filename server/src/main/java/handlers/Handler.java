@@ -8,6 +8,8 @@ import service.BaseService;
 import service.GameService;
 import service.UserService;
 
+import java.util.HashSet;
+
 public class Handler {
 
     protected static final Gson gson = new Gson();
@@ -16,7 +18,13 @@ public class Handler {
     protected static final BaseService baseService = new BaseService();
     protected String authorize(spark.Request req) throws DataAccessException {
         String authToken = req.headers("Authorization");
-        if (!MemoryAuthDAO.listAuthTokens().contains(authToken)) {
+        HashSet<AuthData> auths = MemoryAuthDAO.listAuths();
+        HashSet<String> authTokens = new HashSet<String>();
+
+        for (AuthData a : auths) {
+            authTokens.add(a.authToken());
+        }
+        if (!authTokens.contains(authToken)) {
             throw new DataAccessException("unauthorized");
         }
         return authToken;

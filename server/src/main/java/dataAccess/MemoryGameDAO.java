@@ -51,18 +51,6 @@ public class MemoryGameDAO implements GameDAO {
         return gamesList;
     }
 
-    public static void updateGame(int gameID, ChessGame updatedGame) throws DataAccessException {
-        for (GameData g : games) {
-            if (g.gameID() == gameID) {
-                games.remove(g);
-                games.add(g.setGame(updatedGame));
-                return;
-            }
-        }
-
-        throw new DataAccessException("Game not found");
-    }
-
     public static void addPlayer(String playerColor, int gameID, String username) throws DataAccessException {
         for (GameData g : games) {
             if (g.gameID() == gameID) {
