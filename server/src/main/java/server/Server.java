@@ -1,10 +1,13 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.DatabaseManager;
 import handlers.*;
 import spark.*;
 
 import java.util.Map;
+
+import static dataAccess.DatabaseManager.createDatabase;
 
 public class Server {
 
@@ -12,6 +15,12 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        try {
+            createDatabase();
+        } catch (Throwable ex) {
+            System.out.println("Error creating database: " + ex.getMessage());
+        }
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", (req, res) -> ClearHandler.getInstance().handle(req, res));
