@@ -1,7 +1,9 @@
 package service;
 
 import dataAccess.*;
-import model.AuthData;
+import dataAccess.MemoryDAO.MemoryAuthDAO;
+import dataAccess.MemoryDAO.MemoryGameDAO;
+import dataAccess.MemoryDAO.MemoryUserDAO;
 
 public class BaseService {
     public void clear() throws DataAccessException {

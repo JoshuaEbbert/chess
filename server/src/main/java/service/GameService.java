@@ -1,15 +1,10 @@
 package service;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import model.AuthData;
-import model.GameData;
+import dataAccess.MemoryDAO.MemoryAuthDAO;
+import dataAccess.MemoryDAO.MemoryGameDAO;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map;
 
 public class GameService extends BaseService{

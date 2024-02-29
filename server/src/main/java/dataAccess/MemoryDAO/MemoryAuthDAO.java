@@ -1,5 +1,7 @@
-package dataAccess;
+package dataAccess.MemoryDAO;
 
+import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import model.AuthData;
 
 import java.util.Collection;

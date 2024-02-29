@@ -2,7 +2,7 @@ package handlers;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
+import dataAccess.MemoryDAO.MemoryAuthDAO;
 import model.AuthData;
 import service.BaseService;
 import service.GameService;
