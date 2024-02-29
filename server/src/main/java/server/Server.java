@@ -8,6 +8,7 @@ import spark.*;
 import java.util.Map;
 
 import static dataAccess.DatabaseManager.createDatabase;
+import static dataAccess.DatabaseManager.initializeDatabase;
 
 public class Server {
 
@@ -18,6 +19,7 @@ public class Server {
 
         try {
             createDatabase();
+            initializeDatabase();
         } catch (Throwable ex) {
             System.out.println("Error creating database: " + ex.getMessage());
         }

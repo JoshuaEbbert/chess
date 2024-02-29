@@ -46,6 +46,49 @@ public class DatabaseManager {
         }
     }
 
+    private static final String[] initStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS games (
+              `gameID` int NOT NULL primary key AUTO_INCREMENT,
+              `whiteUsername` varchar(256),
+              `blackUsername` varchar(256),
+              `gameName` varchar(256) NOT NULL,
+              `game` JSON NOT NULL
+            );
+            """,
+            """
+            ALTER TABLE games AUTO_INCREMENT = 1000;
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS users (
+              `username` varchar(256) NOT NULL primary key,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS auths (
+               `username` varchar(256) NOT NULL primary key,
+               `token` varchar(256) NOT NULL
+            );
+            """
+    };
+
+    /**
+     * Initializes the database with the tables and data required for the application.
+     */
+    public static void initializeDatabase() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : initStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
@@ -58,7 +101,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    public static Connection getConnection() throws DataAccessException {
         try {
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             conn.setCatalog(databaseName);
