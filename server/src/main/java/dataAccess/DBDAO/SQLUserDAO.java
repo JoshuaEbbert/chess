@@ -37,10 +37,8 @@ public class SQLUserDAO implements dataAccess.UserDAO {
             } else {
                 return null;
             }
-
         } catch (SQLException ex) {
             throw new DataAccessException("Error getting user: " + ex.getMessage());
-
         }
     }
     public static void clear() throws DataAccessException {

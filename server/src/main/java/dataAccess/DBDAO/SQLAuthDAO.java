@@ -3,7 +3,9 @@ package dataAccess.DBDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import model.AuthData;
+import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.UUID;
@@ -24,11 +26,33 @@ public class SQLAuthDAO implements dataAccess.AuthDAO {
         return new AuthData(username, authtoken);
     }
 
-    public static void deleteAuth(String authIdentifier) throws DataAccessException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static void deleteAuth(String authtoken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var stmt = conn.prepareStatement("DELETE FROM auths WHERE authtoken = ?");
+            stmt.setString(1, authtoken);
+            int rs = stmt.executeUpdate();
+
+            if (rs == 0) {
+                throw new DataAccessException("unauthorized");
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error getting auth: " + ex.getMessage());
+        }
     }
-    public static AuthData verifyAuth(String authToken) throws DataAccessException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static AuthData verifyAuth(String authtoken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var stmt = conn.prepareStatement("SELECT username, authtoken FROM users WHERE authtoken = ?");
+            stmt.setString(1, authtoken);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new AuthData(rs.getString("username"), rs.getString("authtoken"));
+            } else {
+                throw new DataAccessException("unauthorized");
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error getting auth: " + ex.getMessage());
+        }
     }
     public static void clear() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -38,7 +62,19 @@ public class SQLAuthDAO implements dataAccess.AuthDAO {
             throw new DataAccessException("Error clearing authentication table ('auths'): " + ex.getMessage());
         }
     }
-    public static HashSet<AuthData> listAuths() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public static HashSet<AuthData> listAuths() throws DataAccessException {
+        HashSet<AuthData> auths = new HashSet<AuthData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var stmt = conn.prepareStatement("SELECT username, authtoken FROM auths");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                auths.add(new AuthData(rs.getString("username"), rs.getString("authtoken")));
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error getting auth: " + ex.getMessage());
+        }
+
+        return auths;
     }
 }
