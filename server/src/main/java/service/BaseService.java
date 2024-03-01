@@ -1,14 +1,14 @@
 package service;
 
 import dataAccess.*;
-import dataAccess.MemoryDAO.MemoryAuthDAO;
-import dataAccess.MemoryDAO.MemoryGameDAO;
-import dataAccess.MemoryDAO.MemoryUserDAO;
+import dataAccess.DBDAO.SQLAuthDAO;
+import dataAccess.DBDAO.SQLGameDAO;
+import dataAccess.DBDAO.SQLUserDAO;
 
 public class BaseService {
     public void clear() throws DataAccessException {
-        MemoryGameDAO.clear();
-        MemoryUserDAO.clear();
-        MemoryAuthDAO.clear();
+        SQLGameDAO.clear();
+        SQLAuthDAO.clear();
+        SQLUserDAO.clear();
     }
 }

@@ -1,5 +1,7 @@
 package serviceTests;
 
+import dataAccess.DBDAO.SQLAuthDAO;
+import dataAccess.DBDAO.SQLGameDAO;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDAO.MemoryAuthDAO;
 import dataAccess.MemoryDAO.MemoryGameDAO;
@@ -19,8 +21,8 @@ public class ClearTests {
         BaseService service = new BaseService();
         service.clear();
 
-        assertEquals(0, MemoryGameDAO.listGames().size());
-        assertEquals(0, MemoryAuthDAO.listAuths().size());
+        assertEquals(0, SQLGameDAO.listGames().size());
+        assertEquals(0, SQLAuthDAO.listAuths().size());
     }
 
     // Dr. Rodham said that we don't need to test the negative case for this method.

@@ -1,6 +1,7 @@
 package handlers;
 
 import com.google.gson.Gson;
+import dataAccess.DBDAO.SQLAuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDAO.MemoryAuthDAO;
 import model.AuthData;
@@ -18,7 +19,7 @@ public class Handler {
     protected static final BaseService baseService = new BaseService();
     protected String authorize(spark.Request req) throws DataAccessException {
         String authToken = req.headers("Authorization");
-        HashSet<AuthData> auths = MemoryAuthDAO.listAuths();
+        HashSet<AuthData> auths = SQLAuthDAO.listAuths();
         HashSet<String> authTokens = new HashSet<String>();
 
         for (AuthData a : auths) {

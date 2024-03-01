@@ -46,7 +46,7 @@ public class SQLAuthDAO implements dataAccess.AuthDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new AuthData(rs.getString("username"), rs.getString("authtoken"));
+                return new AuthData(rs.getString("authtoken"), rs.getString("username"));
             } else {
                 throw new DataAccessException("unauthorized");
             }
