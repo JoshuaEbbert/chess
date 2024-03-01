@@ -72,7 +72,7 @@ public class DatabaseManager {
             """
             CREATE TABLE IF NOT EXISTS auths (
                `username` varchar(256) NOT NULL,
-               `token` varchar(256) NOT NULL
+               `authtoken` varchar(256) NOT NULL
             );
             """
     };

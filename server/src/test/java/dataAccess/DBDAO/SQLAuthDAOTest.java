@@ -1,31 +1,66 @@
 package dataAccess.DBDAO;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import dataAccess.DataAccessException;
+import org.junit.jupiter.api.*;
 
+import static dataAccess.DatabaseManager.createDatabase;
+import static dataAccess.DatabaseManager.initializeDatabase;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SQLAuthDAOTest {
 
+    @BeforeAll
+    static void setUp() {
+        try {
+            createDatabase();
+            initializeDatabase();
+            SQLAuthDAO.clear();
+        } catch (Throwable ex) {
+            System.out.println("Error creating database: " + ex.getMessage());
+        }
+    }
+
     @BeforeEach
-    void setUp() {
+    void emptyDB() {
+        try {
+            SQLAuthDAO.clear();
+        } catch (Throwable ex){
+            System.out.println("Error clearing database: " + ex.getMessage());
+        }
     }
 
-    @AfterEach
-    void tearDown() {
+    @AfterAll
+    static void tearDown() {
+        try {
+            SQLAuthDAO.clear();
+        } catch (Throwable ex){
+            System.out.println("Error clearing database: " + ex.getMessage());
+        }
     }
 
     @Test
-    void createAuth() {
+    void positiveCreateAuth() throws DataAccessException {
+        SQLAuthDAO.createAuth("testUsername");
+        SQLAuthDAO.createAuth("testUsername");
+        SQLAuthDAO.createAuth("testUsername2");
+        SQLAuthDAO.createAuth("testUsername2");
+    }
+    @Test
+    void negativeCreateAuth() {
     }
 
     @Test
-    void deleteAuth() {
+    void positiveDeleteAuth() {
+    }
+    @Test
+    void negativeDeleteAuth() {
     }
 
     @Test
-    void verifyAuth() {
+    void positiveVerifyAuth() {
+    }
+    @Test
+    void negativeVerifyAuth() {
     }
 
     @Test
@@ -33,6 +68,10 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void listAuths() {
+    void positiveListAuths() {
+    }
+
+    @Test
+    void negativeListAuths() {
     }
 }
