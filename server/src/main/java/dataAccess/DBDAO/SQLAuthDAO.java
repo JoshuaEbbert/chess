@@ -23,7 +23,7 @@ public class SQLAuthDAO implements dataAccess.AuthDAO {
             throw new DataAccessException("Error creating authentication: " + ex.getMessage());
         }
 
-        return new AuthData(username, authtoken);
+        return new AuthData(authtoken, username);
     }
 
     public static void deleteAuth(String authtoken) throws DataAccessException {
@@ -41,7 +41,7 @@ public class SQLAuthDAO implements dataAccess.AuthDAO {
     }
     public static AuthData verifyAuth(String authtoken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var stmt = conn.prepareStatement("SELECT username, authtoken FROM users WHERE authtoken = ?");
+            var stmt = conn.prepareStatement("SELECT username, authtoken FROM auths WHERE authtoken = ?");
             stmt.setString(1, authtoken);
             ResultSet rs = stmt.executeQuery();
 
@@ -69,7 +69,7 @@ public class SQLAuthDAO implements dataAccess.AuthDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                auths.add(new AuthData(rs.getString("username"), rs.getString("authtoken")));
+                auths.add(new AuthData(rs.getString("authtoken"), rs.getString("username")));
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Error getting auth: " + ex.getMessage());
