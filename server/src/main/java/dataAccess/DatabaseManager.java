@@ -15,7 +15,7 @@ public class DatabaseManager {
     static {
         try {
             try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
-                if (propStream == null) throw new Exception("Unable to laod db.properties");
+                if (propStream == null) throw new Exception("Unable to load db.properties");
                 Properties props = new Properties();
                 props.load(propStream);
                 databaseName = props.getProperty("db.name");
@@ -48,6 +48,9 @@ public class DatabaseManager {
 
     private static final String[] initStatements = {
             """
+            USE %s;
+            """.formatted(databaseName),
+            """
             CREATE TABLE IF NOT EXISTS games (
               `gameID` int NOT NULL primary key AUTO_INCREMENT,
               `whiteUsername` varchar(256),
@@ -68,7 +71,7 @@ public class DatabaseManager {
             """,
             """
             CREATE TABLE IF NOT EXISTS auths (
-               `username` varchar(256) NOT NULL primary key,
+               `username` varchar(256) NOT NULL,
                `token` varchar(256) NOT NULL
             );
             """
@@ -109,5 +112,9 @@ public class DatabaseManager {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    public static void clearDatabase() throws DataAccessException {
+
     }
 }

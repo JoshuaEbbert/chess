@@ -9,7 +9,7 @@ import java.util.HashSet;
 public class MemoryUserDAO implements UserDAO {
     private final static HashSet<UserData> users = new HashSet<UserData>();
 
-    public static void createUser(String username, String password, String email) throws DataAccessException {
+    public static void createUser(String username, String password, String email) {
         users.add(new UserData(username, password, email));
     }
 
