@@ -21,8 +21,9 @@ public class SQLGameDAO implements dataAccess.GameDAO {
     public static int createGame(String gameName) throws DataAccessException {
         int gameID = 0;
         try (var conn = DatabaseManager.getConnection()) {
-            var stmt = conn.prepareStatement("INSERT INTO games (gameName) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+            var stmt = conn.prepareStatement("INSERT INTO games (gameName, game) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, gameName);
+            stmt.setString(2, gson.toJson(new ChessGame()));
 
             if(stmt.executeUpdate() == 1) {
                 try(ResultSet generatedKeys = stmt.getGeneratedKeys()) {
