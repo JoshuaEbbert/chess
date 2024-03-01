@@ -25,12 +25,12 @@ class UserServiceTest {
         UserData newUser1 = new UserData("testUser", "testPassword", "testEmail");
         service.register(newUser1);
 
-        assertEquals(newUser1, SQLUserDAO.getUser("testUser"));
+        assertEquals(newUser1.username(), SQLUserDAO.getUser("testUser").username());
 
         UserData newUser2 = new UserData("kate", "charlie123", "katestrong92@gmail.com");
         service.register(newUser2);
 
-        assertEquals(newUser2, SQLUserDAO.getUser("kate"));
+        assertEquals(newUser2.username(), SQLUserDAO.getUser("kate").username());
     }
 
     @Test

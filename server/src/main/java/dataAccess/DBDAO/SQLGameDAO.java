@@ -23,7 +23,9 @@ public class SQLGameDAO implements dataAccess.GameDAO {
         try (var conn = DatabaseManager.getConnection()) {
             var stmt = conn.prepareStatement("INSERT INTO games (gameName, game) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, gameName);
-            stmt.setString(2, gson.toJson(new ChessGame()));
+            ChessGame game = new ChessGame();
+            game.getBoard().resetBoard();
+            stmt.setString(2, gson.toJson(game));
 
             if(stmt.executeUpdate() == 1) {
                 try(ResultSet generatedKeys = stmt.getGeneratedKeys()) {
