@@ -1,5 +1,6 @@
-package dataAccess.DBDAO;
+package dataAccess.dataAccessTests;
 
+import dataAccess.DBDAO.SQLGameDAO;
 import dataAccess.DataAccessException;
 import model.GameData;
 import org.junit.jupiter.api.*;

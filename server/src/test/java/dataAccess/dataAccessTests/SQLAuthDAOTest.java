@@ -1,5 +1,6 @@
-package dataAccess.DBDAO;
+package dataAccess.dataAccessTests;
 
+import dataAccess.DBDAO.SQLAuthDAO;
 import dataAccess.DataAccessException;
 import model.AuthData;
 import org.junit.jupiter.api.*;
