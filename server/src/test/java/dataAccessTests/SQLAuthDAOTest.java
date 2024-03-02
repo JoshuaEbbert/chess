@@ -1,4 +1,4 @@
-package dataAccess.dataAccessTests;
+package dataAccessTests;
 
 import dataAccess.DBDAO.SQLAuthDAO;
 import dataAccess.DataAccessException;
