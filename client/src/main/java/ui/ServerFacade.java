@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ServerFacade {
-//    public ArrayList<Map<String, Object>> listGames(String authToken) {}
 //    public void joinGame(ChessGame.TeamColor color, int gameID) {}
     private final String serverUrl;
     private String authorization;
@@ -52,6 +51,11 @@ public class ServerFacade {
         String path = "/game";
         GameData createdGame = this.makeRequest("POST", path, authorization, new GameData(0, null, null, gameName, null), GameData.class);
         return createdGame.gameID();
+    }
+
+    public ArrayList<Map<String, Object>> listGames(String authToken) throws ResponseException {
+        String path = "/game";
+        return (ArrayList<Map<String, Object>>) this.makeRequest("GET", path, authToken, null, Map.class).get("games");
     }
 
     private <T> T makeRequest(String method, String path, String authorization, Object request, Class<T> responseClass) throws ResponseException {
