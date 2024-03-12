@@ -6,6 +6,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import requests.JoinGameRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ServerFacade {
-//    public void joinGame(ChessGame.TeamColor color, int gameID) {}
     private final String serverUrl;
     private String authorization;
 
@@ -58,6 +58,11 @@ public class ServerFacade {
         return (ArrayList<Map<String, Object>>) this.makeRequest("GET", path, authToken, null, Map.class).get("games");
     }
 
+    public void joinGame(String color, int gameID) throws ResponseException {
+        String path = "/game";
+        this.makeRequest("PUT", path, authorization, new JoinGameRequest(gameID, color), null);
+    }
+
     private <T> T makeRequest(String method, String path, String authorization, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
@@ -68,7 +73,7 @@ public class ServerFacade {
             if (authorization != null) {
                 http.addRequestProperty("Authorization", authorization);
             }
-            if (Objects.equals(method, "POST")) { // does this apply to other methods?
+            if (Objects.equals(method, "POST") || Objects.equals(method, "PUT")) {
                 http.setDoOutput(true);
             }
 

@@ -116,4 +116,22 @@ public class ServerFacadeTests {
 
         assertEquals(3, facade.listGames(newLogin.authToken()).size());
     }
+
+    @Test
+    void positiveTestJoinGame() throws ResponseException {
+        AuthData authData = facade.register("newUsername", "newPassword", "newEmail");
+        int gameID = facade.createGame("newGame!");
+        facade.joinGame("WHITE", gameID);
+    }
+
+    @Test
+    void negativeTestJoinGame() throws ResponseException {
+        AuthData authData = facade.register("newUsername", "newPassword", "newEmail");
+        int gameID = facade.createGame("newGame!");
+        facade.joinGame("WHITE", gameID);
+        assertThrows(ResponseException.class, () -> facade.joinGame("WHITE", gameID));
+
+        facade.logout(authData.authToken());
+        assertThrows(ResponseException.class, () -> facade.joinGame("BLACK", gameID));
+    }
 }
