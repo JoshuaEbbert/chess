@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ServerFacade {
-//    public AuthData register(String username, String password, String email) {}
 //    public void logout(String authToken) {}
 //    public ArrayList<Map<String, Object>> listGames(String authToken) {}
 //    public int createGame(String gameName) {}
@@ -32,6 +31,11 @@ public class ServerFacade {
     public AuthData login(String username, String password) throws ResponseException {
         String path = "/session";
         return this.makeRequest("POST", path, new UserData(username, password, null), AuthData.class);
+    }
+
+    public AuthData register(String username, String password, String email) throws ResponseException {
+        String path = "/user";
+        return this.makeRequest("POST", path, new UserData(username, password, email), AuthData.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
