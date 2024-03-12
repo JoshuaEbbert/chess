@@ -49,17 +49,37 @@ public class ServerFacadeTests {
         assertNotEquals(auth1.authToken(), auth2.authToken());
     }
 
-    @Test void negativeTestLogin() throws ResponseException {
+    @Test
+    void negativeTestLogin() throws ResponseException {
         assertThrows(ResponseException.class, () -> facade.login("unregisteredUsername", "wrongPassword"));
     }
 
-    @Test void positiveTestRegister() throws ResponseException {
+    @Test
+    void positiveTestRegister() throws ResponseException {
         AuthData authData = facade.register("newUsername", "newPassword", "newEmail");
         assertTrue(authData.authToken().length() > 10);
     }
 
-    @Test void negativeTestRegister() throws ResponseException {
+    @Test
+    void negativeTestRegister() throws ResponseException {
         assertThrows(ResponseException.class, () -> facade.register(null, "newPassword", "newEmail"));;
+    }
+
+    @Test
+    void negativeTestLogout() throws ResponseException {
+        AuthData authData = facade.register("newUsername", "newPassword", "newEmail");
+        facade.logout(authData.authToken());
+        assertThrows(ResponseException.class, () -> facade.logout(authData.authToken()));
+    }
+
+    @Test
+    void positiveTestLogout() throws ResponseException {
+        AuthData authData1 = facade.register("newUsername", "newPassword", "newEmail");
+        facade.logout(authData1.authToken());
+        AuthData authData2 = facade.login("newUsername", "newPassword");
+        facade.logout(authData2.authToken());
+
+        //TODO: add line that requires active auth and throws exception
     }
 
 }
