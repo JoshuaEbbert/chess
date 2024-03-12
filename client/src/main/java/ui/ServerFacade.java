@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 import java.io.IOException;
@@ -19,9 +20,9 @@ import java.util.Objects;
 
 public class ServerFacade {
 //    public ArrayList<Map<String, Object>> listGames(String authToken) {}
-//    public int createGame(String gameName) {}
 //    public void joinGame(ChessGame.TeamColor color, int gameID) {}
     private final String serverUrl;
+    private String authorization;
 
     public ServerFacade(int port) {
         serverUrl = "http://localhost:" + port;
@@ -29,17 +30,28 @@ public class ServerFacade {
 
     public AuthData login(String username, String password) throws ResponseException {
         String path = "/session";
-        return this.makeRequest("POST", path, null, new UserData(username, password, null), AuthData.class);
+        AuthData authData = this.makeRequest("POST", path, null, new UserData(username, password, null), AuthData.class);
+        this.authorization = authData.authToken();
+        return authData;
     }
 
     public AuthData register(String username, String password, String email) throws ResponseException {
         String path = "/user";
-        return this.makeRequest("POST", path, null, new UserData(username, password, email), AuthData.class);
+        AuthData authData = this.makeRequest("POST", path, null, new UserData(username, password, email), AuthData.class);
+        this.authorization = authData.authToken();
+        return authData;
     }
 
     public void logout(String authToken) throws ResponseException {
         String path = "/session";
         this.makeRequest("DELETE", path, authToken, null, null);
+        this.authorization = null;
+    }
+
+    public int createGame(String gameName) throws ResponseException {
+        String path = "/game";
+        GameData createdGame = this.makeRequest("POST", path, authorization, new GameData(0, null, null, gameName, null), GameData.class);
+        return createdGame.gameID();
     }
 
     private <T> T makeRequest(String method, String path, String authorization, Object request, Class<T> responseClass) throws ResponseException {

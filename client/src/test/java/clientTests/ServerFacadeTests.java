@@ -79,7 +79,20 @@ public class ServerFacadeTests {
         AuthData authData2 = facade.login("newUsername", "newPassword");
         facade.logout(authData2.authToken());
 
-        // TODO: add line that requires active auth and throws exception
+        assertThrows(ResponseException.class, () -> facade.createGame(authData2.authToken()));
     }
 
+    @Test
+    void negativeTestCreateGame() throws ResponseException {
+        AuthData authData = facade.register("newUsername", "newPassword", "newEmail");
+        facade.logout(authData.authToken());
+        assertThrows(ResponseException.class, () -> facade.createGame("newGame!"));
+    }
+
+    @Test
+    void positiveTestCreateGame() throws ResponseException {
+        AuthData authData = facade.register("newUsername", "newPassword", "newEmail");
+        int gameID = facade.createGame("newGame!");
+        assertTrue(gameID > 0);
+    }
 }
