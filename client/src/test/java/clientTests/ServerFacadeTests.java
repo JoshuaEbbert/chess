@@ -79,7 +79,7 @@ public class ServerFacadeTests {
         AuthData authData2 = facade.login("newUsername", "newPassword");
         facade.logout(authData2.authToken());
 
-        //TODO: add line that requires active auth and throws exception
+        // TODO: add line that requires active auth and throws exception
     }
 
 }

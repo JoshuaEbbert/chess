@@ -29,38 +29,29 @@ public class ServerFacade {
 
     public AuthData login(String username, String password) throws ResponseException {
         String path = "/session";
-        return this.makeRequest("POST", path, new UserData(username, password, null), AuthData.class);
+        return this.makeRequest("POST", path, null, new UserData(username, password, null), AuthData.class);
     }
 
     public AuthData register(String username, String password, String email) throws ResponseException {
         String path = "/user";
-        return this.makeRequest("POST", path, new UserData(username, password, email), AuthData.class);
+        return this.makeRequest("POST", path, null, new UserData(username, password, email), AuthData.class);
     }
 
     public void logout(String authToken) throws ResponseException {
         String path = "/session";
-        try {
-            URL url = (new URI(serverUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-
-            http.setReadTimeout(5000); // 5 seconds
-            http.setRequestMethod("DELETE");
-            http.addRequestProperty("Authorization", authToken);
-
-            http.connect();
-            throwIfNotSuccessful(http);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+        this.makeRequest("DELETE", path, authToken, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, String authorization, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
 
             http.setReadTimeout(5000); // 5 seconds
             http.setRequestMethod(method);
+            if (authorization != null) {
+                http.addRequestProperty("Authorization", authorization);
+            }
             if (Objects.equals(method, "POST")) { // does this apply to other methods?
                 http.setDoOutput(true);
             }
