@@ -44,11 +44,15 @@ public class PostloginUI {
                 }
             } else if (input_array[0].equals("create") && input_array.length == 2) {
                 try {
+                    if (games == null) {
+                        games = server.listGames(authorization);
+                    }
+
                     int gameID = server.createGame(authorization, input_array[1]);
-                    games.add(Map.of("gameID", gameID, "gameName", input_array[1]));
+                    games.add(Map.of("gameID", (double) gameID, "gameName", input_array[1]));
                     out.println("Successfully created game #" + games.size() + " " + input_array[1]);
                 } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
+                    out.println(e.getMessage());
                 }
             } else if (input_array[0].equals("list") && input_array.length == 1) {
                 listGames(out, server);
@@ -62,7 +66,7 @@ public class PostloginUI {
                     out.println("Successfully logged out!");
                     exit = true;
                 } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
+                    out.println(e.getMessage());
                 }
             } else if (!input.equals(EXIT_COMMAND)) {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");
@@ -72,25 +76,31 @@ public class PostloginUI {
 
     private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
-            int gameID = (int) ((Double) games.get(Integer.parseInt(input_array[1]) - 1).get("gameID")).doubleValue();            String color = input_array.length == 3 ? input_array[2] : null;
+            int gameID = getGameID(server, input_array, out);
+            String color = input_array.length == 3 ? input_array[2] : null;
+
+            if (color != null && !color.equals("WHITE") && !color.equals("BLACK")) {
+                throw new Exception("Invalid color");
+            }
+
             server.joinGame(authorization, color, gameID);
             out.println("Successfully joined game!");
             GameplayUI game = new GameplayUI();
             game.run(out, scanner, server);
         } catch (Exception e) {
-            out.println("Error: " + e.getMessage());
+            out.println(e.getMessage());
         }
     }
 
     private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
-            int gameID = (int) games.get(Integer.parseInt(input_array[1])).get("gameID");
+            int gameID = getGameID(server, input_array, out);
             server.joinGame(authorization, null, gameID);
             out.println("Successfully observing game!");
             GameplayUI game = new GameplayUI();
             game.run(out, scanner, server);
         } catch (Exception e) {
-            out.println("Error: " + e.getMessage());
+            out.println(e.getMessage());
         }
     }
 
@@ -110,7 +120,19 @@ public class PostloginUI {
                 out.println("No available games.");
             }
         } catch (Exception e) {
-            out.println("Error: " + e.getMessage());
+            out.println(e.getMessage());
         }
+    }
+
+    private int getGameID(ServerFacade server, String[] input_array, PrintStream out) throws Exception {
+        if (games == null) {
+            games = server.listGames(authorization);
+        }
+
+        if (games == null || Integer.parseInt(input_array[1]) < 1 || Integer.parseInt(input_array[1]) > games.size()) {
+            throw new Exception("Invalid game ID");
+        }
+
+        return (int) ((Double) games.get(Integer.parseInt(input_array[1]) - 1).get("gameID")).doubleValue();
     }
 }

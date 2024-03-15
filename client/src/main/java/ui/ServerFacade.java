@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
@@ -8,16 +9,14 @@ import model.GameData;
 import model.UserData;
 import requests.JoinGameRequest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import java.lang.reflect.Type;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -92,7 +91,21 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         int status = http.getResponseCode();
         if (status != 200) {
-            throw new ResponseException(status, "failure: " + status);
+            InputStream errorStream = http.getErrorStream();
+            StringBuilder errorDescription = new StringBuilder();
+            if (errorStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    errorDescription.append(line);
+                }
+                reader.close();
+            }
+
+            Gson gson = new Gson();
+            Type type = new TypeToken<Map<String, String>>(){}.getType();
+            Map<String, String> error = gson.fromJson(errorDescription.toString(), type);
+            throw new ResponseException(status, error.get("message"));
         }
     }
 

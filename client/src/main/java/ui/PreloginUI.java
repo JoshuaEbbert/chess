@@ -24,7 +24,7 @@ public class PreloginUI {
                     PostloginUI post = new PostloginUI(authorized.username(), authorized.authToken());
                     post.run(out, scanner, server);
                 } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
+                    out.println(e.getMessage());
                 }
             } else if (input_array[0].equals("login") && input_array.length == 3) { // login
                 try {
@@ -33,7 +33,7 @@ public class PreloginUI {
                     PostloginUI post = new PostloginUI(authorized.username(), authorized.authToken());
                     post.run(out, scanner, server);
                 } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
+                    out.println(e.getMessage());
                 }
             } else if (input_array[0].equals("help")) { // help
                 out.println("Commands: \n\tregister <USERNAME> <PASSWORD> <EMAIL>, \n\tlogin <USERNAME> <PASSWORD>, \n\tquit");

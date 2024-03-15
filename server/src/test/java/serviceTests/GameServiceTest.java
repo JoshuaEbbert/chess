@@ -10,6 +10,7 @@ import dataAccess.MemoryDAO.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.GameService;
@@ -20,6 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class GameServiceTest {
     @BeforeEach
     void setUp() throws DataAccessException {
+        SQLUserDAO.clear();
+        SQLAuthDAO.clear();
+        SQLGameDAO.clear();
+    }
+
+    @AfterAll
+    static void cleanUp() throws DataAccessException {
         SQLUserDAO.clear();
         SQLAuthDAO.clear();
         SQLGameDAO.clear();
