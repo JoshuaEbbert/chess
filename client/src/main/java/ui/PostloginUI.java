@@ -44,8 +44,9 @@ public class PostloginUI {
                 }
             } else if (input_array[0].equals("create") && input_array.length == 2) {
                 try {
-                    int gameID = server.createGame(authorization, input_array[1]); // TODO: add to games list?
-                    out.println("Successfully created game " + input_array[1]);
+                    int gameID = server.createGame(authorization, input_array[1]);
+                    games.add(Map.of("gameID", gameID, "gameName", input_array[1]));
+                    out.println("Successfully created game #" + games.size() + " " + input_array[1]);
                 } catch (Exception e) {
                     out.println("Error: " + e.getMessage());
                 }
@@ -54,7 +55,7 @@ public class PostloginUI {
             } else if (input_array[0].equals("join") && (input_array.length == 3 || input_array.length == 2)) {
                 joinGame(input_array, out, scanner, server);
             } else if (input_array[0].equals("observe") && input_array.length == 2) {
-                observerGame(input_array, out, scanner, server);
+                observeGame(input_array, out, scanner, server);
             } else if (input_array[0].equals(EXIT_COMMAND)) { // logout
                 try {
                     server.logout(authorization);
@@ -71,7 +72,7 @@ public class PostloginUI {
 
     private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
-            int gameID = (int) ((Double) games.get(Integer.parseInt(input_array[1])).get("gameID")).doubleValue();            String color = input_array.length == 3 ? input_array[2] : null;
+            int gameID = (int) ((Double) games.get(Integer.parseInt(input_array[1]) - 1).get("gameID")).doubleValue();            String color = input_array.length == 3 ? input_array[2] : null;
             server.joinGame(authorization, color, gameID);
             out.println("Successfully joined game!");
             GameplayUI game = new GameplayUI();
@@ -81,7 +82,7 @@ public class PostloginUI {
         }
     }
 
-    private void observerGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+    private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
             int gameID = (int) games.get(Integer.parseInt(input_array[1])).get("gameID");
             server.joinGame(authorization, null, gameID);
@@ -100,7 +101,10 @@ public class PostloginUI {
                 out.println("Available games:");
                 for (int i = 0; i < games.size(); i++) {
                     Map<String, Object> game = games.get(i);
-                    out.println("\t" + (i + 1) + ". " + game.get("gameName")); // TODO: add player info
+                    String blackUsername = game.get("blackUsername") == null ? "None" : (String) game.get("blackUsername");
+                    String whiteUsername = game.get("whiteUsername") == null ? "None" : (String) game.get("whiteUsername");
+                    out.println("\t" + (i + 1) + ". " + game.get("gameName"));
+                    out.println("\t\tWHITE: " + whiteUsername + " BLACK: " + blackUsername);
                 }
             } else {
                 out.println("No available games.");

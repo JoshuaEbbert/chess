@@ -6,14 +6,29 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.SET_BG_COLOR_BLACK;
-import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
+import static ui.EscapeSequences.*;
 
 public class GameplayUI {
-    public void run(PrintStream out, Scanner scanner, ServerFacade server) { // TODO: add repl
+    private final String EXIT_COMMAND = "quit";
+    private final String STATE = "[GAMEPLAY]";
+    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
         var game = new ChessGame();
         game.getBoard().resetBoard();
         showBoards(game);
+
+        String input = "";
+        while (!input.equals(EXIT_COMMAND)) {
+            out.print(STATE + " >>> ");
+            input = scanner.nextLine();
+            String[] input_array = input.split(" ");
+            out.print(ERASE_SCREEN);
+            if (input_array[0].equals("help")) {
+                out.println("Commands: \n\thelp - show available commands, \n\tquit - exit game");
+            } else if (!input.equals(EXIT_COMMAND)) {
+                showBoards(game);
+                out.println("Error: Invalid command. Type 'help' to see available commands.");
+            }
+        }
     }
 
     private static void showBoards(ChessGame game) {
