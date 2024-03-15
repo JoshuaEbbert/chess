@@ -21,54 +21,37 @@ import java.util.Objects;
 
 public class ServerFacade {
     private final String serverUrl;
-    private String authorization;
-
     public ServerFacade(int port) {
         serverUrl = "http://localhost:" + port;
     }
 
     public AuthData login(String username, String password) throws ResponseException {
         String path = "/session";
-        AuthData authData = this.makeRequest("POST", path, null, new UserData(username, password, null), AuthData.class);
-        this.authorization = authData.authToken();
-        return authData;
+        return this.makeRequest("POST", path, null, new UserData(username, password, null), AuthData.class);
     }
 
     public AuthData register(String username, String password, String email) throws ResponseException {
         String path = "/user";
-        AuthData authData = this.makeRequest("POST", path, null, new UserData(username, password, email), AuthData.class);
-        this.authorization = authData.authToken();
-        return authData;
-    }
-
-    public void logout() throws ResponseException {
-        String path = "/session";
-        this.makeRequest("DELETE", path, authorization, null, null);
-        this.authorization = null;
+        return this.makeRequest("POST", path, null, new UserData(username, password, email), AuthData.class);
     }
 
     public void logout(String authToken) throws ResponseException {
         String path = "/session";
         this.makeRequest("DELETE", path, authToken, null, null);
-        this.authorization = null;
     }
 
-    public int createGame(String gameName) throws ResponseException {
+    public int createGame(String authorization, String gameName) throws ResponseException {
         String path = "/game";
         GameData createdGame = this.makeRequest("POST", path, authorization, new GameData(0, null, null, gameName, null), GameData.class);
         return createdGame.gameID();
     }
 
-    public ArrayList<Map<String, Object>> listGames() throws ResponseException {
-        String path = "/game";
-        return (ArrayList<Map<String, Object>>) this.makeRequest("GET", path, authorization, null, Map.class).get("games");
-    }
     public ArrayList<Map<String, Object>> listGames(String authToken) throws ResponseException {
         String path = "/game";
         return (ArrayList<Map<String, Object>>) this.makeRequest("GET", path, authToken, null, Map.class).get("games");
     }
 
-    public void joinGame(String color, int gameID) throws ResponseException {
+    public void joinGame(String authorization, String color, int gameID) throws ResponseException {
         String path = "/game";
         this.makeRequest("PUT", path, authorization, new JoinGameRequest(gameID, color), null);
     }

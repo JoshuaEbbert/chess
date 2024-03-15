@@ -1,5 +1,7 @@
 package ui;
 
+import model.AuthData;
+
 import java.io.PrintStream;
 import java.util.Scanner;
 
@@ -17,18 +19,18 @@ public class PreloginUI {
             String[] input_array = input.split(" ");
             if (input_array[0].equals("register") && input_array.length == 4) { // register
                 try {
-                    server.register(input_array[1], input_array[2], input_array[3]);
+                    AuthData authorized = server.register(input_array[1], input_array[2], input_array[3]);
                     out.println("Successfully registered!");
-                    PostloginUI post = new PostloginUI();
+                    PostloginUI post = new PostloginUI(authorized.username(), authorized.authToken());
                     post.run(out, scanner, server);
                 } catch (Exception e) {
                     out.println("Error: " + e.getMessage());
                 }
             } else if (input_array[0].equals("login") && input_array.length == 3) { // login
                 try {
-                    server.login(input_array[1], input_array[2]);
+                    AuthData authorized = server.login(input_array[1], input_array[2]);
                     out.println("Successfully logged in!");
-                    PostloginUI post = new PostloginUI();
+                    PostloginUI post = new PostloginUI(authorized.username(), authorized.authToken());
                     post.run(out, scanner, server);
                 } catch (Exception e) {
                     out.println("Error: " + e.getMessage());
