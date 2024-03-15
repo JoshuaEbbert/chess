@@ -41,6 +41,12 @@ public class ServerFacade {
         return authData;
     }
 
+    public void logout() throws ResponseException {
+        String path = "/session";
+        this.makeRequest("DELETE", path, authorization, null, null);
+        this.authorization = null;
+    }
+
     public void logout(String authToken) throws ResponseException {
         String path = "/session";
         this.makeRequest("DELETE", path, authToken, null, null);
@@ -53,6 +59,10 @@ public class ServerFacade {
         return createdGame.gameID();
     }
 
+    public ArrayList<Map<String, Object>> listGames() throws ResponseException {
+        String path = "/game";
+        return (ArrayList<Map<String, Object>>) this.makeRequest("GET", path, authorization, null, Map.class).get("games");
+    }
     public ArrayList<Map<String, Object>> listGames(String authToken) throws ResponseException {
         String path = "/game";
         return (ArrayList<Map<String, Object>>) this.makeRequest("GET", path, authToken, null, Map.class).get("games");

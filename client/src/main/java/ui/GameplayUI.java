@@ -4,12 +4,13 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.SET_BG_COLOR_BLACK;
 import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
 
 public class GameplayUI {
-    public static void run(PrintStream out) {
+    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
         var game = new ChessGame();
         game.getBoard().resetBoard();
         showBoards(game);
