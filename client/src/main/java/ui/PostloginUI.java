@@ -50,40 +50,11 @@ public class PostloginUI {
                     out.println("Error: " + e.getMessage());
                 }
             } else if (input_array[0].equals("list") && input_array.length == 1) {
-                try {
-                    ArrayList<Map<String, Object>> games = server.listGames(authorization);
-                    if (!games.isEmpty()) {
-                        out.println("Available games:");
-                        for (int i = 0; i < games.size(); i++) {
-                            Map<String, Object> game = games.get(i);
-                            out.println("\t" + (i + 1) + ". " + game.get("name")); // TODO: add player info
-                        }
-                    } else {
-                        out.println("No available games.");
-                    }
-                } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
-                }
-            } else if (input_array[0].equals("join") && input_array.length == 3) {
-                try {
-                    int gameID = (int) games.get(Integer.parseInt(input_array[1])).get("gameID");
-                    server.joinGame(authorization, input_array[2], gameID);
-                    out.println("Successfully joined game!");
-                    GameplayUI game = new GameplayUI();
-                    game.run(out, scanner, server);
-                } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
-                }
+                listGames(out, server);
+            } else if (input_array[0].equals("join") && (input_array.length == 3 || input_array.length == 2)) {
+                joinGame(input_array, out, scanner, server);
             } else if (input_array[0].equals("observe") && input_array.length == 2) {
-                try {
-                    int gameID = (int) games.get(Integer.parseInt(input_array[1])).get("gameID");
-                    server.joinGame(authorization, null, gameID);
-                    out.println("Successfully observing game!");
-                    GameplayUI game = new GameplayUI();
-                    game.run(out, scanner, server);
-                } catch (Exception e) {
-                    out.println("Error: " + e.getMessage());
-                }
+                observerGame(input_array, out, scanner, server);
             } else if (input_array[0].equals(EXIT_COMMAND)) { // logout
                 try {
                     server.logout(authorization);
@@ -96,5 +67,46 @@ public class PostloginUI {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");
             }
         };
+    }
+
+    private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+        try {
+            int gameID = (int) ((Double) games.get(Integer.parseInt(input_array[1])).get("gameID")).doubleValue();            String color = input_array.length == 3 ? input_array[2] : null;
+            server.joinGame(authorization, color, gameID);
+            out.println("Successfully joined game!");
+            GameplayUI game = new GameplayUI();
+            game.run(out, scanner, server);
+        } catch (Exception e) {
+            out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void observerGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+        try {
+            int gameID = (int) games.get(Integer.parseInt(input_array[1])).get("gameID");
+            server.joinGame(authorization, null, gameID);
+            out.println("Successfully observing game!");
+            GameplayUI game = new GameplayUI();
+            game.run(out, scanner, server);
+        } catch (Exception e) {
+            out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void listGames(PrintStream out, ServerFacade server) {
+        try {
+            games = server.listGames(authorization);
+            if (!games.isEmpty()) {
+                out.println("Available games:");
+                for (int i = 0; i < games.size(); i++) {
+                    Map<String, Object> game = games.get(i);
+                    out.println("\t" + (i + 1) + ". " + game.get("gameName")); // TODO: add player info
+                }
+            } else {
+                out.println("No available games.");
+            }
+        } catch (Exception e) {
+            out.println("Error: " + e.getMessage());
+        }
     }
 }

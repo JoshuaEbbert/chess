@@ -10,14 +10,10 @@ import static ui.EscapeSequences.SET_BG_COLOR_BLACK;
 import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
 
 public class GameplayUI {
-    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
+    public void run(PrintStream out, Scanner scanner, ServerFacade server) { // TODO: add repl
         var game = new ChessGame();
         game.getBoard().resetBoard();
         showBoards(game);
-
-        // prepare for user input
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
     }
 
     private static void showBoards(ChessGame game) {
