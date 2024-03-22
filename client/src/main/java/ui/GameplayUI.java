@@ -4,90 +4,179 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
 public class GameplayUI {
-    private final String EXIT_COMMAND = "quit";
+    private final String EXIT_COMMAND = "leave";
     private final String STATE = "[GAMEPLAY]";
     public void run(PrintStream out, Scanner scanner, ServerFacade server) {
+
+        // placeholder code; need to retrieve board and color
         var game = new ChessGame();
         game.getBoard().resetBoard();
-        showBoards(game);
+        ChessGame.TeamColor color = ChessGame.TeamColor.BLACK;
+        game.getBoard().addPiece(new ChessPosition(3, 3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
+        showBoard(game, color);
 
         String input = "";
         while (!input.equals(EXIT_COMMAND)) {
             out.print(STATE + " >>> ");
-            input = scanner.nextLine();
-            String[] input_array = input.split(" ");
+            String[] input_array = scanner.nextLine().split(" ");
             out.print(ERASE_SCREEN);
             if (input_array[0].equals("help")) {
-                out.println("Commands: \n\thelp - show available commands, \n\tquit - exit game");
-            } else if (!input.equals(EXIT_COMMAND)) {
-                showBoards(game);
+                out.println("""
+                        Commands:\s
+                        \thelp - show available commands,\s
+                        \tredraw - redraws the chess board,\s
+                        \tleave - leave the game\s
+                        \tmove <from> <to> - move a piece. Position given by <column letter><row number>\s
+                        \tresign - must confirm. Forfeit and end the game
+                        \thighlight <position> - highlight all the possible moves for a piece at the given position. If there is no piece, nothing happens""");
+            } else if (input_array[0].equals("highlight") && input_array.length == 2) {
+                try {
+                    ChessPosition pos = strToPos(input_array[1]);
+                    if (game.getBoard().getPiece(pos) != null) {
+                        showBoard(game, color, pos);
+                    } else {
+                        showBoard(game, color);
+                    }
+                } catch (Exception e) {
+                    out.println("Error: Invalid position. Give position as <column letter><row number>. E.g. e4");
+                }
+            } else if (input_array[0].equals("redraw")) {
+                showBoard(game, color);
+//            } else if (input_array[0].equals("move") && input_array.length == 3) {
+//                ChessPosition from = new ChessPosition(input_array[1]);
+//                ChessPosition to = new ChessPosition(input_array[2]);
+//
+            } else if (input_array[0].equals("resign")) {
+                out.println("Are you sure you want to resign? (y/n)");
+                if (scanner.nextLine().equals("y")) {
+                    out.println("You have resigned. Game over.");
+                    //TODO: end game
+                    input = EXIT_COMMAND;
+                }
+            } else if (!input_array[0].equals(EXIT_COMMAND)) {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");
             }
         }
     }
 
-    private static void showBoards(ChessGame game) {
-        // print white top
-        printTop();
-        for (int row = 8; row > 0; row--) {
-            System.out.print(row + " ");
-            for (int col = 1; col < 9; col++) {
-                System.out.print("|");
-                ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
-                if (piece == null) {
-                    System.out.print("   ");
-                } else {
-                    System.out.print(" " + piece.toChar() + " ");
+    private static void showBoard(ChessGame game, ChessGame.TeamColor color) {
+        printTop(color);
+        if (color == ChessGame.TeamColor.BLACK) {
+            for (int row = 1; row < 9; row++) {
+                System.out.print(row + " ");
+                for (int col = 8; col > 0; col--) {
+                    System.out.print("|");
+                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
+                    if (piece == null) {
+                        System.out.print("   ");
+                    } else {
+                        System.out.print(" " + piece.toChar() + " ");
+                    }
                 }
+                System.out.println("| " + row);
             }
-            System.out.println("| " + row);
-        }
-        printBottom();
-
-        // buffer space
-        System.out.println();
-        System.out.println();
-
-        // print white bottom
-        printTop();
-        for (int row = 8; row > 0; row--) {
-            System.out.print(row + " ");
-            for (int col = 1; col < 9; col++) {
-                System.out.print("|");
-                ChessPiece piece = getFlippedPiece(game, row, col);
-                if (piece == null) {
-                    System.out.print("   ");
-                } else {
-                    System.out.print(" " + piece.toChar() + " ");
+        } else { // White on bottom is default
+            for (int row = 8; row > 0; row--) {
+                System.out.print(row + " ");
+                for (int col = 1; col < 9; col++) {
+                    System.out.print("|");
+                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
+                    if (piece == null) {
+                        System.out.print("   ");
+                    } else {
+                        System.out.print(" " + piece.toChar() + " ");
+                    }
                 }
+                System.out.println("| " + row);
             }
-            System.out.println("| " + row);
         }
-        printBottom();
+        printBottom(color);
     }
 
-    private static void printTop() {
+    // Overloading showBoard to implement highlighting
+    private static void showBoard(ChessGame game, ChessGame.TeamColor color, ChessPosition highlight) {
+        HashSet<ChessPosition> validMoves = new HashSet<>();
+        for (ChessMove move: game.validMoves(highlight)) {
+            validMoves.add(move.getEndPosition());
+        }
+
+        printTop(color);
+        if (color == ChessGame.TeamColor.BLACK) {
+            for (int row = 1; row < 9; row++) {
+                System.out.print(row + " ");
+                for (int col = 8; col > 0; col--) {
+                    System.out.print("|");
+                    ChessPosition pos = new ChessPosition(row, col);
+                    if (validMoves.contains(pos)) {
+                        System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_BOLD + getPieceStr(game, pos) + "\u001B[0m");
+                    } else if (highlight.equals(pos)) {
+                        System.out.print(SET_BG_COLOR_RED + getPieceStr(game, pos) + "\u001B[0m");
+                    } else {
+                        System.out.print(getPieceStr(game, pos));
+                    }
+                }
+                System.out.println("| " + row);
+            }
+        } else { // White on bottom is default
+            for (int row = 8; row > 0; row--) {
+                System.out.print(row + " ");
+                for (int col = 1; col < 9; col++) {
+                    System.out.print("|");
+                    ChessPosition pos = new ChessPosition(row, col);
+                    if (validMoves.contains(pos)) {
+                        System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_BOLD + getPieceStr(game, pos) + "\u001B[0m");
+                    } else if (highlight.equals(pos)) {
+                        System.out.print(SET_TEXT_BLINKING + getPieceStr(game, pos) + "\u001B[0m");
+                    } else {
+                        System.out.print(getPieceStr(game, pos));
+                    }
+                }
+                System.out.println("| " + row);
+            }
+        }
+        printBottom(color);
+    }
+
+    private static void printTop(ChessGame.TeamColor color) {
         System.out.print("   ");
-        for (int col = 1; col < 9; col++) {
-            System.out.print(" " + (char) (col + 96) + "  ");
+        if (color == ChessGame.TeamColor.BLACK) {
+            for (int col = 8; col > 0; col--) {
+                System.out.print(" " + (char) (col + 96) + "  ");
+            }
+        } else { // White on bottom is default
+            for (int col = 1; col < 9; col++) {
+                System.out.print(" " + (char) (col + 96) + "  ");
+            }
         }
         System.out.println();
     }
 
-    private static void printBottom() {
+    private static void printBottom(ChessGame.TeamColor color) {
         System.out.print("   ");
-        for (int col = 1; col < 9; col++) {
-            System.out.print(" " + (char) (col + 96) + "  ");
+        if (color == ChessGame.TeamColor.BLACK) {
+            for (int col = 8; col > 0; col--) {
+                System.out.print(" " + (char) (col + 96) + "  ");
+            }
+        } else {
+            for (int col = 1; col < 9; col++) {
+                System.out.print(" " + (char) (col + 96) + "  ");
+            }
         }
         System.out.println();
     }
 
-    private static ChessPiece getFlippedPiece(ChessGame game, int row, int col) {
-        return game.getBoard().getPiece(new ChessPosition(9 - row, 9 - col));
+    private static ChessPosition strToPos(String str) {
+        return new ChessPosition(Integer.parseInt(str.substring(1)), str.charAt(0) - 96);
+    }
+
+    private static String getPieceStr(ChessGame game, ChessPosition pos) {
+        ChessPiece piece = game.getBoard().getPiece(pos);
+        return piece == null ? "   " : " " + piece.toChar() + " ";
     }
 }
