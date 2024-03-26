@@ -1,4 +1,4 @@
-package ui;
+package serverLogic;
 
 import chess.ChessGame;
 import com.google.gson.reflect.TypeToken;

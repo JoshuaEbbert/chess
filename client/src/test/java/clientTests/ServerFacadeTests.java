@@ -6,7 +6,7 @@ import model.AuthData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import service.BaseService;
-import ui.ServerFacade;
+import serverLogic.ServerFacade;
 
 import static org.junit.jupiter.api.Assertions.*;
 

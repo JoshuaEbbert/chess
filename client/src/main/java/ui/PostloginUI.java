@@ -1,13 +1,13 @@
 package ui;
 
-import requests.JoinGameRequest;
+import serverLogic.GameHandler;
+import serverLogic.ServerFacade;
+import serverLogic.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
-
-import static ui.EscapeSequences.ERASE_SCREEN;
 
 public class PostloginUI {
     private final String EXIT_COMMAND = "logout";
@@ -21,7 +21,7 @@ public class PostloginUI {
         this.username = username;
         this.authorization = authorization;
     }
-    public void run(PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
+    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
         String input = "";
         boolean exit = false;
         while (!exit) {
@@ -57,9 +57,9 @@ public class PostloginUI {
             } else if (input_array[0].equals("list") && input_array.length == 1) {
                 listGames(out, server);
             } else if (input_array[0].equals("join") && (input_array.length == 3 || input_array.length == 2)) {
-                joinGame(input_array, out, scanner, server, webSocket);
+                joinGame(input_array, out, scanner, server);
             } else if (input_array[0].equals("observe") && input_array.length == 2) {
-                observeGame(input_array, out, scanner, server, webSocket);
+                observeGame(input_array, out, scanner, server);
             } else if (input_array[0].equals(EXIT_COMMAND)) { // logout
                 try {
                     server.logout(authorization);
@@ -74,7 +74,7 @@ public class PostloginUI {
         };
     }
 
-    private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
+    private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
             int gameID = getGameID(server, input_array, out);
             String color = input_array.length == 3 ? input_array[2] : null;
@@ -89,18 +89,20 @@ public class PostloginUI {
 
 
             GameplayUI game = new GameplayUI(authorization);
+            WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
             game.run(out, scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());
         }
     }
 
-    private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
+    private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
             int gameID = getGameID(server, input_array, out);
             server.joinGame(authorization, null, gameID);
             out.println("Successfully observing game!");
             GameplayUI game = new GameplayUI(authorization);
+            WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
             game.run(out, scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());
