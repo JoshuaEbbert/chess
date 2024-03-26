@@ -12,7 +12,13 @@ import static ui.EscapeSequences.*;
 public class GameplayUI {
     private final String EXIT_COMMAND = "leave";
     private final String STATE = "[GAMEPLAY]";
-    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
+
+    private final String authorization;
+
+    public GameplayUI(String authorization) {
+        this.authorization = authorization;
+    }
+    public void run(PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
 
         // placeholder code; need to retrieve board and color
         var game = new ChessGame();

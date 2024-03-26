@@ -2,6 +2,7 @@ import chess.*;
 import ui.GameplayUI;
 import ui.PreloginUI;
 import ui.ServerFacade;
+import ui.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -14,10 +15,11 @@ public class Main {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         Scanner scanner = new Scanner(System.in);
         ServerFacade server = new ServerFacade(8080);
+        WebSocketFacade webSocket = new WebSocketFacade(8080);
 
         out.print(ERASE_SCREEN);
         PreloginUI pre = new PreloginUI();
 
-        pre.run(out, scanner, server);
+        pre.run(out, scanner, server, webSocket);
     }
 }

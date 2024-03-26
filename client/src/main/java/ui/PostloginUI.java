@@ -21,7 +21,7 @@ public class PostloginUI {
         this.username = username;
         this.authorization = authorization;
     }
-    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
+    public void run(PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
         String input = "";
         boolean exit = false;
         while (!exit) {
@@ -57,9 +57,9 @@ public class PostloginUI {
             } else if (input_array[0].equals("list") && input_array.length == 1) {
                 listGames(out, server);
             } else if (input_array[0].equals("join") && (input_array.length == 3 || input_array.length == 2)) {
-                joinGame(input_array, out, scanner, server);
+                joinGame(input_array, out, scanner, server, webSocket);
             } else if (input_array[0].equals("observe") && input_array.length == 2) {
-                observeGame(input_array, out, scanner, server);
+                observeGame(input_array, out, scanner, server, webSocket);
             } else if (input_array[0].equals(EXIT_COMMAND)) { // logout
                 try {
                     server.logout(authorization);
@@ -74,7 +74,7 @@ public class PostloginUI {
         };
     }
 
-    private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+    private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
         try {
             int gameID = getGameID(server, input_array, out);
             String color = input_array.length == 3 ? input_array[2] : null;
@@ -85,20 +85,23 @@ public class PostloginUI {
 
             server.joinGame(authorization, color, gameID);
             out.println("Successfully joined game!");
-            GameplayUI game = new GameplayUI();
-            game.run(out, scanner, server);
+
+
+
+            GameplayUI game = new GameplayUI(authorization);
+            game.run(out, scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());
         }
     }
 
-    private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+    private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
         try {
             int gameID = getGameID(server, input_array, out);
             server.joinGame(authorization, null, gameID);
             out.println("Successfully observing game!");
-            GameplayUI game = new GameplayUI();
-            game.run(out, scanner, server);
+            GameplayUI game = new GameplayUI(authorization);
+            game.run(out, scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());
         }

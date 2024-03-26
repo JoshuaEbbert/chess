@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class PreloginUI {
     private final String EXIT_COMMAND = "quit";
     private final String STATE = "[LOGGED OUT]";
-    public void run(PrintStream out, Scanner scanner, ServerFacade server) {
+    public void run(PrintStream out, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
         out.println("♕ Chess Client: Type help to get started ♕");
 
         String input = "";
@@ -22,7 +22,7 @@ public class PreloginUI {
                     AuthData authorized = server.register(input_array[1], input_array[2], input_array[3]);
                     out.println("Successfully registered!");
                     PostloginUI post = new PostloginUI(authorized.username(), authorized.authToken());
-                    post.run(out, scanner, server);
+                    post.run(out, scanner, server, webSocket);
                 } catch (Exception e) {
                     out.println(e.getMessage());
                 }
@@ -31,7 +31,7 @@ public class PreloginUI {
                     AuthData authorized = server.login(input_array[1], input_array[2]);
                     out.println("Successfully logged in!");
                     PostloginUI post = new PostloginUI(authorized.username(), authorized.authToken());
-                    post.run(out, scanner, server);
+                    post.run(out, scanner, server, webSocket);
                 } catch (Exception e) {
                     out.println(e.getMessage());
                 }
