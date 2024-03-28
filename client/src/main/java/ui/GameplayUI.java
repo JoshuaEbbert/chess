@@ -17,21 +17,16 @@ public class GameplayUI implements GameHandler {
 
     private final String authorization;
     private PrintStream out;
-    private ChessGame game;
+    private ChessGame game = new ChessGame();
+    private final ChessGame.TeamColor teamColor;
 
-    public GameplayUI(String authorization) {
+    public GameplayUI(String authorization, ChessGame.TeamColor teamColor, PrintStream printer) {
         this.authorization = authorization;
-    }
-    public void run(PrintStream printer, Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
-
-        // placeholder code; need to retrieve board and color
-        game = new ChessGame();
-        game.getBoard().resetBoard();
-        ChessGame.TeamColor color = ChessGame.TeamColor.BLACK;
-        game.getBoard().addPiece(new ChessPosition(3, 3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
-        showBoard(game, color);
-
+        this.game.getBoard().resetBoard();
+        this.teamColor = teamColor;
         this.out = printer;
+    }
+    public void run(Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
         String input = "";
         while (!input.equals(EXIT_COMMAND)) {
             out.print(STATE + " >>> ");
@@ -50,15 +45,15 @@ public class GameplayUI implements GameHandler {
                 try {
                     ChessPosition pos = strToPos(input_array[1]);
                     if (game.getBoard().getPiece(pos) != null) {
-                        showBoard(game, color, pos);
+                        showBoard(game, teamColor, pos);
                     } else {
-                        showBoard(game, color);
+                        showBoard(game, teamColor);
                     }
                 } catch (Exception e) {
                     out.println("Error: Invalid position. Give position as <column letter><row number>. E.g. e4");
                 }
             } else if (input_array[0].equals("redraw")) {
-                showBoard(game, color);
+                showBoard(game, teamColor);
 //            } else if (input_array[0].equals("move") && input_array.length == 3) {
 //                ChessPosition from = new ChessPosition(input_array[1]);
 //                ChessPosition to = new ChessPosition(input_array[2]);
@@ -78,6 +73,8 @@ public class GameplayUI implements GameHandler {
 
     public void updateGame(ChessGame game) {
         this.game = game;
+        showBoard(game, teamColor);
+        out.print(STATE + " >>> ");
     }
     public void printMessage(String message) {
         out.println(message);

@@ -1,7 +1,6 @@
 package serverLogic;
 
 import chess.ChessGame;
-import org.glassfish.tyrus.core.wsadl.model.Endpoint;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -12,6 +11,7 @@ import webSocketMessages.serverMessages.Error;
 import webSocketMessages.userCommands.JoinPlayer;
 
 import javax.websocket.*;
+import javax.websocket.Endpoint;
 import javax.websocket.ContainerProvider;
 import javax.websocket.WebSocketContainer;
 import java.net.URI;
@@ -54,16 +54,16 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
     @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-
+        System.out.println("Message received! " + serverMessage.getServerMessageType());
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
-                gameHandler.updateGame(((LoadGame) serverMessage).getGame());
+                gameHandler.updateGame(gson.fromJson(message, LoadGame.class).getGame());
                 break;
             case NOTIFICATION:
-                gameHandler.printMessage(((Notification) serverMessage).getMessage());
+                gameHandler.printMessage(gson.fromJson(message, Notification.class).getMessage());
                 break;
             case ERROR:
-                gameHandler.printMessage(((Error) serverMessage).getErrorMessage());
+                gameHandler.printMessage(gson.fromJson(message, Error.class).getErrorMessage());
                 break;
         }
     }
@@ -71,9 +71,26 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
     public void onClose() {
     }
     @OnOpen
-    public void onOpen() {
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
     @OnError
     public void onError() {
+    }
+
+    public static void main(String[] args) {
+        WebSocketFacade webSocket = new WebSocketFacade(8080, "auth", new GameHandler() {
+            @Override
+            public void updateGame(ChessGame game) {
+            }
+            @Override
+            public void printMessage(String message) {
+            }
+        });
+        try {
+            webSocket.connect();
+            webSocket.joinPlayer(0, ChessGame.TeamColor.WHITE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            }
     }
 }

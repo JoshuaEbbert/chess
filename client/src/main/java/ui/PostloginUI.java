@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import serverLogic.GameHandler;
 import serverLogic.ServerFacade;
 import serverLogic.WebSocketFacade;
@@ -84,13 +85,14 @@ public class PostloginUI {
             }
 
             server.joinGame(authorization, color, gameID);
+
+            ChessGame.TeamColor teamColor = color == null ? null : color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            GameplayUI gameUI = new GameplayUI(authorization, teamColor, out);
+            WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) gameUI);
+            webSocket.connect();
+            webSocket.joinPlayer(gameID, teamColor);
             out.println("Successfully joined game!");
-
-
-
-            GameplayUI game = new GameplayUI(authorization);
-            WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
-            game.run(out, scanner, server, webSocket);
+            gameUI.run(scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());
         }
@@ -101,9 +103,9 @@ public class PostloginUI {
             int gameID = getGameID(server, input_array, out);
             server.joinGame(authorization, null, gameID);
             out.println("Successfully observing game!");
-            GameplayUI game = new GameplayUI(authorization);
+            GameplayUI game = new GameplayUI(authorization, ChessGame.TeamColor.WHITE, out); // White passed as default color to set board display
             WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
-            game.run(out, scanner, server, webSocket);
+            game.run(scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());
         }
@@ -132,6 +134,12 @@ public class PostloginUI {
     private int getGameID(ServerFacade server, String[] input_array, PrintStream out) throws Exception {
         if (games == null) {
             games = server.listGames(authorization);
+        }
+
+        try {
+            Integer.parseInt(input_array[1]);
+        } catch (Exception e) {
+            throw new Exception("To join please specify a game number");
         }
 
         if (games == null || Integer.parseInt(input_array[1]) < 1 || Integer.parseInt(input_array[1]) > games.size()) {
