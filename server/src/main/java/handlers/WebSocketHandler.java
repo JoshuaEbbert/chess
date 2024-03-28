@@ -42,9 +42,7 @@ public class WebSocketHandler {
         System.out.println("Command type: " + command.getCommandType());
         switch (command.getCommandType()) {
             case JOIN_PLAYER:
-                System.out.println("In JOIN_PLAYER block");
                 JoinPlayer joinPlayer = gson.fromJson(message, JoinPlayer.class);
-                System.out.println("JoinPlayer: " + joinPlayer);
                 joinPlayerHandler(session, joinPlayer);
                 break;
             case JOIN_OBSERVER:
@@ -65,9 +63,10 @@ public class WebSocketHandler {
     private void joinPlayerHandler(Session session, JoinPlayer command) {
         System.out.println("In joinPlayerHandler");
         String username;
+        String auth;
         try {
             System.out.println("In try block");
-            String auth = command.getAuthString();
+            auth = command.getAuthString();
             System.out.println("Auth: " + auth);
             username = SQLAuthDAO.verifyAuth(auth).username();
             System.out.println("Username: " + username);
@@ -77,6 +76,7 @@ public class WebSocketHandler {
             return;
         }
         System.out.println("Joining player " + username + " to game " + command.getGameID());
+        sessions.addSession(command.getGameID(), auth, session);
         try {
             LoadGame loadGame = new LoadGame(Objects.requireNonNull(SQLGameDAO.getGame(command.getGameID())).game());
             sendMessage(session, gson.toJson(loadGame));
@@ -87,7 +87,7 @@ public class WebSocketHandler {
             return;
         }
         Notification joinNotification = new Notification(username + " joined the game");
-        System.out.println("Notified");
+        System.out.println("Notification object prepared");
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
         System.out.println("Done");
     }

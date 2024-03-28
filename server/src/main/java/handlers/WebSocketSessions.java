@@ -13,11 +13,11 @@ public class WebSocketSessions {
         sessions = new HashMap<Integer, HashMap<String, Session>>();
     }
 
-    public void addSession(int gameID, String authtoken, Session session) {
+    public void addSession(int gameID, String auth, Session session) {
         if (!sessions.containsKey(gameID)) {
             sessions.put(gameID, new HashMap<String, Session>());
         }
-        sessions.get(gameID).put(authtoken, session);
+        sessions.get(gameID).put(auth, session);
     }
 
     public void removeSessionFromGame(int gameID, String authtoken, Session session) {
