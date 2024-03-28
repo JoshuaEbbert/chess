@@ -87,7 +87,7 @@ public class PostloginUI {
             server.joinGame(authorization, color, gameID);
 
             ChessGame.TeamColor teamColor = color == null ? null : color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-            GameplayUI gameUI = new GameplayUI(authorization, teamColor, out);
+            GameplayUI gameUI = new GameplayUI(authorization, gameID, teamColor, out);
             WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) gameUI);
             webSocket.connect();
             webSocket.joinPlayer(gameID, teamColor);
@@ -102,7 +102,7 @@ public class PostloginUI {
         try {
             int gameID = getGameID(server, input_array, out);
             server.joinGame(authorization, null, gameID);
-            GameplayUI game = new GameplayUI(authorization, ChessGame.TeamColor.WHITE, out); // White passed as default color to set board display
+            GameplayUI game = new GameplayUI(authorization, gameID, null, out); // White passed as default color to set board display
             WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
             webSocket.connect();
             webSocket.joinObserver(gameID);

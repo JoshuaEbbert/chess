@@ -19,16 +19,18 @@ public class GameplayUI implements GameHandler {
     private PrintStream out;
     private ChessGame game = new ChessGame();
     private final ChessGame.TeamColor teamColor;
+    private final int gameID;
 
-    public GameplayUI(String authorization, ChessGame.TeamColor teamColor, PrintStream printer) {
+    public GameplayUI(String authorization, int gameID, ChessGame.TeamColor teamColor, PrintStream printer) {
         this.authorization = authorization;
         this.game.getBoard().resetBoard();
+        this.gameID = gameID;
         this.teamColor = teamColor;
         this.out = printer;
     }
     public void run(Scanner scanner, ServerFacade server, WebSocketFacade webSocket) {
         String input = "";
-        while (!input.equals(EXIT_COMMAND)) {
+        while (true) {
             out.print(STATE + " >>> ");
             String[] input_array = scanner.nextLine().split(" ");
             out.print(ERASE_SCREEN);
@@ -63,13 +65,15 @@ public class GameplayUI implements GameHandler {
                 if (scanner.nextLine().equals("y")) {
                     out.println("You have resigned. Game over.");
                     //TODO: end game
-                    input = EXIT_COMMAND;
+                    break;
                 }
             } else if (!input_array[0].equals(EXIT_COMMAND)) {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");
+            } else if (webSocket.leaveGame(authorization, gameID, teamColor)) { // input is exit_command and leave was successful
+                break;
             }
         }
-    } // TODO: add webSocket.disconnect() in appropriate locations?
+    }
 
     public void updateGame(ChessGame game) {
         this.game = game;
@@ -81,6 +85,7 @@ public class GameplayUI implements GameHandler {
     }
 
     private static void showBoard(ChessGame game, ChessGame.TeamColor color) {
+        if (color == null) { color = ChessGame.TeamColor.WHITE; }
         printTop(color);
         if (color == ChessGame.TeamColor.BLACK) {
             for (int row = 1; row < 9; row++) {

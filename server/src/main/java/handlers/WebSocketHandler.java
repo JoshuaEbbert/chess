@@ -11,6 +11,7 @@ import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.Leave;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.HashMap;
@@ -54,7 +55,10 @@ public class WebSocketHandler {
                 // Call make move handler
                 break;
             case LEAVE:
-                // Call leave handler
+                System.out.println("In leave case");
+                Leave leaveCommand = gson.fromJson(message, Leave.class);
+                leaveHandler(session, leaveCommand);
+                System.out.println("Done with leave case");
                 break;
             case RESIGN:
                 // Call resign handler
@@ -114,6 +118,32 @@ public class WebSocketHandler {
         Notification joinNotification = new Notification(username + " joined the game as an observer");
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
         System.out.println("Done adding observer");
+    }
+
+    private void leaveHandler(Session session, Leave leaveCommand) {
+        String username;
+        String auth;
+        try {
+            auth = leaveCommand.getAuthString();
+            username = SQLAuthDAO.verifyAuth(auth).username();
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Unauthorized")));
+            return;
+        }
+
+        if (leaveCommand.getColor() != null) {
+            try {
+                SQLGameDAO.removePlayer(leaveCommand.getColor().toString().toLowerCase(), leaveCommand.getGameID());
+            } catch (DataAccessException e) {
+                sendMessage(session, gson.toJson(new Error("Error leaving game")));
+                return;
+            }
+        }
+
+        Notification joinNotification = new Notification(username + " left the game");
+        broadcastMessage(leaveCommand.getGameID(), session, gson.toJson(joinNotification));
+        sessions.removeSession(session);
+        System.out.println("Done leaving game");
     }
 
     private void sendMessage(Session session, String message) {

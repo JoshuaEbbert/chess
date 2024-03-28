@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import webSocketMessages.serverMessages.Error;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.Leave;
 
 import javax.websocket.*;
 import javax.websocket.Endpoint;
@@ -56,6 +57,24 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
         } catch (Exception e) {
             gameHandler.printMessage("Error: Could not add observer");
         }
+    }
+
+    public boolean leaveGame(String auth, int gameID, ChessGame.TeamColor color) {
+        Leave leaveCommand = new Leave(auth, gameID, color);
+        try {
+            sendMessage(gson.toJson(leaveCommand));
+        } catch (Exception e) {
+            gameHandler.printMessage("Error: Could not send leave command");
+            return false;
+        }
+
+        try {
+            disconnect();
+        } catch (Exception e) {
+            gameHandler.printMessage("Error disconnecting from server");
+        }
+
+        return true;
     }
 
     private void sendMessage(String message) throws Exception {

@@ -117,6 +117,16 @@ public class SQLGameDAO implements dataAccess.GameDAO {
         }
     }
 
+    public static void removePlayer(String color, int gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var stmt = conn.prepareStatement("UPDATE games SET " + color + "Username = NULL WHERE gameID = ?");
+            stmt.setInt(1, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error removing player: " + ex.getMessage());
+        }
+    }
+
     public static void clear() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var stmt = conn.prepareStatement("DELETE FROM games");
