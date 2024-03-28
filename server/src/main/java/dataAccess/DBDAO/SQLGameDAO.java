@@ -82,6 +82,17 @@ public class SQLGameDAO implements dataAccess.GameDAO {
         }
     }
 
+    public static void updateGame(ChessGame game, int gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var stmt = conn.prepareStatement("UPDATE games SET game = ? WHERE gameID = ?");
+            stmt.setString(1, gson.toJson(game));
+            stmt.setInt(2, gameID);
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error updating game: " + ex.getMessage());
+        }
+    }
+
     public static ArrayList<Map<String, Object>> listGames() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var stmt = conn.prepareStatement("SELECT gameName, whiteUsername, blackUsername, gameID FROM games");

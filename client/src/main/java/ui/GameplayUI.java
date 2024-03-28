@@ -61,11 +61,20 @@ public class GameplayUI implements GameHandler {
 //                ChessPosition to = new ChessPosition(input_array[2]);
 //
             } else if (input_array[0].equals("resign")) {
+                if (teamColor == null) {
+                    out.println("Error: Cannot resign from a game you are not in.");
+                    continue;
+                }
+
                 out.println("Are you sure you want to resign? (y/n)");
                 if (scanner.nextLine().equals("y")) {
-                    out.println("You have resigned. Game over.");
-                    //TODO: end game
-                    break;
+                    if (webSocket.resign(authorization, gameID)) {
+                        out.println("You have resigned. Leaving game.");
+                        webSocket.leaveGame(authorization, gameID, teamColor); // not checking for success as the user is already committed to leaving
+                        break;
+                    } else {
+                        out.println("Error resigning. Please try again.");
+                    }
                 }
             } else if (!input_array[0].equals(EXIT_COMMAND)) {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");

@@ -1,5 +1,6 @@
 package handlers;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.DBDAO.SQLAuthDAO;
 import dataAccess.DBDAO.SQLGameDAO;
@@ -9,10 +10,7 @@ import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.Leave;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -61,7 +59,10 @@ public class WebSocketHandler {
                 System.out.println("Done with leave case");
                 break;
             case RESIGN:
-                // Call resign handler
+                System.out.println("In resign case");
+                Resign resignCommand = gson.fromJson(message, Resign.class);
+                resignHandler(session, resignCommand);
+                System.out.println("Done with resign case");
                 break;
         }
     }
@@ -144,6 +145,31 @@ public class WebSocketHandler {
         broadcastMessage(leaveCommand.getGameID(), session, gson.toJson(joinNotification));
         sessions.removeSession(session);
         System.out.println("Done leaving game");
+    }
+
+    private void resignHandler(Session session, Resign resignCommand) {
+        String username;
+        String auth;
+        try {
+            auth = resignCommand.getAuthString();
+            username = SQLAuthDAO.verifyAuth(auth).username();
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Unauthorized")));
+            return;
+        }
+
+        try {
+            ChessGame game = Objects.requireNonNull(SQLGameDAO.getGame(resignCommand.getGameID())).game();
+            game.setTeamTurn(null);
+            SQLGameDAO.updateGame(game, resignCommand.getGameID());
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Error leaving game")));
+            return;
+        }
+
+        Notification joinNotification = new Notification(username + " resigned from the game. Opponent wins.");
+        broadcastMessage(resignCommand.getGameID(), session, gson.toJson(joinNotification));
+        sendMessage(session, gson.toJson(new Notification("You have resigned. Opponent wins.")));
     }
 
     private void sendMessage(Session session, String message) {

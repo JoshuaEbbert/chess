@@ -11,6 +11,7 @@ import webSocketMessages.serverMessages.Error;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.Leave;
+import webSocketMessages.userCommands.Resign;
 
 import javax.websocket.*;
 import javax.websocket.Endpoint;
@@ -72,6 +73,18 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
             disconnect();
         } catch (Exception e) {
             gameHandler.printMessage("Error disconnecting from server");
+        }
+
+        return true;
+    }
+
+    public boolean resign(String auth, int gameID) {
+        Resign resignCommand = new Resign(auth, gameID);
+        try {
+            sendMessage(gson.toJson(resignCommand));
+        } catch (Exception e) {
+            gameHandler.printMessage("Error: Could not send resign command");
+            return false;
         }
 
         return true;
