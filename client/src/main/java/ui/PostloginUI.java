@@ -102,9 +102,10 @@ public class PostloginUI {
         try {
             int gameID = getGameID(server, input_array, out);
             server.joinGame(authorization, null, gameID);
-            out.println("Successfully observing game!");
             GameplayUI game = new GameplayUI(authorization, ChessGame.TeamColor.WHITE, out); // White passed as default color to set board display
             WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
+            webSocket.connect();
+            webSocket.joinObserver(gameID);
             game.run(scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());

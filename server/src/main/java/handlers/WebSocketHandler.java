@@ -9,6 +9,7 @@ import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -46,7 +47,8 @@ public class WebSocketHandler {
                 joinPlayerHandler(session, joinPlayer);
                 break;
             case JOIN_OBSERVER:
-                // Call join observer handler
+                JoinObserver joinObserver = gson.fromJson(message, JoinObserver.class);
+                joinObserverHandler(session, joinObserver);
                 break;
             case MAKE_MOVE:
                 // Call make move handler
@@ -86,10 +88,32 @@ public class WebSocketHandler {
             sendMessage(session, gson.toJson(new Error("Game not found")));
             return;
         }
-        Notification joinNotification = new Notification(username + " joined the game");
-        System.out.println("Notification object prepared");
+        Notification joinNotification = new Notification(username + " joined the game as " + command.getColor().toString().toLowerCase());
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
         System.out.println("Done");
+    }
+
+    private void joinObserverHandler(Session session, JoinObserver command) {
+        String username;
+        String auth;
+        try {
+            auth = command.getAuthString();
+            username = SQLAuthDAO.verifyAuth(auth).username();
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Unauthorized")));
+            return;
+        }
+        sessions.addSession(command.getGameID(), auth, session);
+        try {
+            LoadGame loadGame = new LoadGame(Objects.requireNonNull(SQLGameDAO.getGame(command.getGameID())).game());
+            sendMessage(session, gson.toJson(loadGame));
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Game not found")));
+            return;
+        }
+        Notification joinNotification = new Notification(username + " joined the game as an observer");
+        broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
+        System.out.println("Done adding observer");
     }
 
     private void sendMessage(Session session, String message) {

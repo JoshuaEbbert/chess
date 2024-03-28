@@ -69,7 +69,7 @@ public class GameplayUI implements GameHandler {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");
             }
         }
-    }
+    } // TODO: add webSocket.disconnect() in appropriate locations?
 
     public void updateGame(ChessGame game) {
         this.game = game;

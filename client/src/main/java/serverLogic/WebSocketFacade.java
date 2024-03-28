@@ -8,6 +8,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import com.google.gson.Gson;
 
 import webSocketMessages.serverMessages.Error;
+import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 
 import javax.websocket.*;
@@ -45,6 +46,15 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
             sendMessage(gson.toJson(joinPlayer));
         } catch (Exception e) {
             gameHandler.printMessage("Error: Could not join game");
+        }
+    }
+
+    public void joinObserver(int gameID) {
+        JoinObserver joinObserver = new JoinObserver(authorization, gameID);
+        try {
+            sendMessage(gson.toJson(joinObserver));
+        } catch (Exception e) {
+            gameHandler.printMessage("Error: Could not add observer");
         }
     }
 
