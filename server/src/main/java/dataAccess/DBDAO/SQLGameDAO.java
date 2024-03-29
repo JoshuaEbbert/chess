@@ -25,6 +25,7 @@ public class SQLGameDAO implements dataAccess.GameDAO {
             stmt.setString(1, gameName);
             ChessGame game = new ChessGame();
             game.getBoard().resetBoard();
+            game.setTeamTurn(ChessGame.TeamColor.WHITE);
             stmt.setString(2, gson.toJson(game));
 
             if(stmt.executeUpdate() == 1) {

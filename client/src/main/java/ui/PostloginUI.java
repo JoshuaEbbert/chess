@@ -36,7 +36,7 @@ public class PostloginUI {
                 for (String option: new String[] {
                         "create <GAME_NAME> - create a new game",
                         "list - list all available games",
-                        "join <GAME_ID> [WHITE|BLACK|<empty>] - join a game",
+                        "join <GAME_ID> [WHITE|BLACK|<empty>] - join a game. Adding no color joins as an observer",
                         "observe <GAME_ID> - observe a game",
                         "logout - when you are done playing",
                         "help - show possible commands"
@@ -57,7 +57,9 @@ public class PostloginUI {
                 }
             } else if (input_array[0].equals("list") && input_array.length == 1) {
                 listGames(out, server);
-            } else if (input_array[0].equals("join") && (input_array.length == 3 || input_array.length == 2)) {
+            } else if (input_array[0].equals("join") && input_array.length == 2) {
+                observeGame(input_array, out, scanner, server);
+            } else if (input_array[0].equals("join") && input_array.length == 3) {
                 joinGame(input_array, out, scanner, server);
             } else if (input_array[0].equals("observe") && input_array.length == 2) {
                 observeGame(input_array, out, scanner, server);
@@ -78,20 +80,20 @@ public class PostloginUI {
     private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
             int gameID = getGameID(server, input_array, out);
-            String color = input_array.length == 3 ? input_array[2] : null;
+            String color = input_array[2];
 
-            if (color != null && !color.equals("WHITE") && !color.equals("BLACK")) {
+            if (!color.equals("WHITE") && !color.equals("BLACK")) {
                 throw new Exception("Invalid color");
             }
 
             server.joinGame(authorization, color, gameID);
+            ChessGame.TeamColor teamColor;
 
-            ChessGame.TeamColor teamColor = color == null ? null : color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            teamColor = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             GameplayUI gameUI = new GameplayUI(authorization, gameID, teamColor, out);
             WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) gameUI);
             webSocket.connect();
             webSocket.joinPlayer(gameID, teamColor);
-            out.println("Successfully joined game!");
             gameUI.run(scanner, server, webSocket);
         } catch (Exception e) {
             out.println(e.getMessage());

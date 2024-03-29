@@ -7,6 +7,7 @@ import serverLogic.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -40,7 +41,7 @@ public class GameplayUI implements GameHandler {
                         \thelp - show available commands,\s
                         \tredraw - redraws the chess board,\s
                         \tleave - leave the game\s
-                        \tmove <from> <to> - move a piece. Position given by <column letter><row number>\s
+                        \tmove <from> <to> <promotion piece (default is none)> - move a piece. Position given by <column letter><row number>. Promotion piece ignored unless for an eligible move.\s
                         \tresign - must confirm. Forfeit and end the game
                         \thighlight <position> - highlight all the possible moves for a piece at the given position. If there is no piece, nothing happens""");
             } else if (input_array[0].equals("highlight") && input_array.length == 2) {
@@ -56,13 +57,40 @@ public class GameplayUI implements GameHandler {
                 }
             } else if (input_array[0].equals("redraw")) {
                 showBoard(game, teamColor);
-//            } else if (input_array[0].equals("move") && input_array.length == 3) {
-//                ChessPosition from = new ChessPosition(input_array[1]);
-//                ChessPosition to = new ChessPosition(input_array[2]);
-//
+            } else if (input_array[0].equals("move") && (input_array.length == 3 || input_array.length == 4)) {
+                ChessPosition from = strToPos(input_array[1]);
+                ChessPosition to = strToPos(input_array[2]);
+
+                ChessPiece.PieceType promotionType = null;
+                if (input_array.length == 4) {
+                    switch (input_array[3].toLowerCase()) {
+                        case "queen":
+                            promotionType = ChessPiece.PieceType.QUEEN;
+                            break;
+                        case "rook":
+                            promotionType = ChessPiece.PieceType.ROOK;
+                            break;
+                        case "bishop":
+                            promotionType = ChessPiece.PieceType.BISHOP;
+                            break;
+                        case "knight":
+                            promotionType = ChessPiece.PieceType.KNIGHT;
+                            break;
+                        default:
+                            out.println("Invalid promotion piece. Options: queen, rook, bishop, knight");
+                    }
+
+                    if (promotionType == null) { // user entered invalid promotion piece
+                        continue;
+                    }
+                }
+
+                ChessMove move = new ChessMove(from, to, promotionType);
+                webSocket.makeMove(authorization, gameID, move);
+
             } else if (input_array[0].equals("resign")) {
                 if (teamColor == null) {
-                    out.println("Error: Cannot resign from a game you are not in.");
+                    out.println("Error: Cannot resign from a game you are not playing in.");
                     continue;
                 }
 
@@ -161,7 +189,7 @@ public class GameplayUI implements GameHandler {
                     if (validMoves.contains(pos)) {
                         System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_BOLD + getPieceStr(game, pos) + "\u001B[0m");
                     } else if (highlight.equals(pos)) {
-                        System.out.print(SET_TEXT_BLINKING + getPieceStr(game, pos) + "\u001B[0m");
+                        System.out.print(SET_BG_COLOR_RED + getPieceStr(game, pos) + "\u001B[0m");
                     } else {
                         System.out.print(getPieceStr(game, pos));
                     }

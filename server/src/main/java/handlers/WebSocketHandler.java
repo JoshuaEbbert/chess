@@ -1,15 +1,18 @@
 package handlers;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DBDAO.SQLAuthDAO;
 import dataAccess.DBDAO.SQLGameDAO;
 import dataAccess.DataAccessException;
 
+import model.GameData;
 import org.eclipse.jetty.websocket.api.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.userCommands.*;
 
 import java.util.HashMap;
@@ -26,7 +29,7 @@ public class WebSocketHandler {
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-
+        sessions.removeSession(session);
     }
 
     @OnWebSocketError
@@ -50,16 +53,15 @@ public class WebSocketHandler {
                 joinObserverHandler(session, joinObserver);
                 break;
             case MAKE_MOVE:
-                // Call make move handler
+                MakeMove makeMove = gson.fromJson(message, MakeMove.class);
+                makeMoveHandler(session, makeMove);
                 break;
             case LEAVE:
-                System.out.println("In leave case");
                 Leave leaveCommand = gson.fromJson(message, Leave.class);
                 leaveHandler(session, leaveCommand);
                 System.out.println("Done with leave case");
                 break;
             case RESIGN:
-                System.out.println("In resign case");
                 Resign resignCommand = gson.fromJson(message, Resign.class);
                 resignHandler(session, resignCommand);
                 System.out.println("Done with resign case");
@@ -68,34 +70,41 @@ public class WebSocketHandler {
     }
 
     private void joinPlayerHandler(Session session, JoinPlayer command) {
-        System.out.println("In joinPlayerHandler");
         String username;
         String auth;
+        GameData gameData;
         try {
-            System.out.println("In try block");
             auth = command.getAuthString();
-            System.out.println("Auth: " + auth);
             username = SQLAuthDAO.verifyAuth(auth).username();
-            System.out.println("Username: " + username);
+            // verify gameID is valid
+            gameData = SQLGameDAO.getGame(command.getGameID());
+            if (gameData == null) {
+                sendMessage(session, gson.toJson(new Error("Game not found")));
+                return;
+            }
+            // verify that http request has already been sent
+            String whitePlayer = gameData.whiteUsername();
+            String blackPlayer = gameData.blackUsername();
+            if (command.getPlayerColor() == ChessGame.TeamColor.WHITE && !Objects.equals(whitePlayer, username)) {
+                sendMessage(session, gson.toJson(new Error("White spot already reserved")));
+                return;
+            } else if (command.getPlayerColor() == ChessGame.TeamColor.BLACK && !Objects.equals(blackPlayer, username)) {
+                sendMessage(session, gson.toJson(new Error("Black spot already reserved")));
+                return;
+            }
         } catch (DataAccessException e) {
-            System.out.println("Unauthorized");
             sendMessage(session, gson.toJson(new Error("Unauthorized")));
             return;
         }
-        System.out.println("Joining player " + username + " to game " + command.getGameID());
+
+        LoadGame loadGame = new LoadGame(gameData.game());
+        sendMessage(session, gson.toJson(loadGame));
+
         sessions.addSession(command.getGameID(), auth, session);
-        try {
-            LoadGame loadGame = new LoadGame(Objects.requireNonNull(SQLGameDAO.getGame(command.getGameID())).game());
-            sendMessage(session, gson.toJson(loadGame));
-            System.out.println("LoadGame: " + gson.toJson(loadGame));
-        } catch (DataAccessException e) {
-            System.out.println("Game not found");
-            sendMessage(session, gson.toJson(new Error("Game not found")));
-            return;
-        }
-        Notification joinNotification = new Notification(username + " joined the game as " + command.getColor().toString().toLowerCase());
+        Notification joinNotification = new Notification(username + " joined the game as " + command.getPlayerColor().toString().toLowerCase());
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
-        System.out.println("Done");
+        System.out.println("Joined player " + username + " to game " + command.getGameID());
+        System.out.println("Current #Sessions: " + sessions.getSessionsForGameID(command.getGameID()).size());
     }
 
     private void joinObserverHandler(Session session, JoinObserver command) {
@@ -108,17 +117,23 @@ public class WebSocketHandler {
             sendMessage(session, gson.toJson(new Error("Unauthorized")));
             return;
         }
-        sessions.addSession(command.getGameID(), auth, session);
+
         try {
-            LoadGame loadGame = new LoadGame(Objects.requireNonNull(SQLGameDAO.getGame(command.getGameID())).game());
+            GameData gameData = SQLGameDAO.getGame(command.getGameID());
+            if (gameData == null) {
+                sendMessage(session, gson.toJson(new Error("Game not found")));
+                return;
+            }
+            LoadGame loadGame = new LoadGame(gameData.game());
             sendMessage(session, gson.toJson(loadGame));
         } catch (DataAccessException e) {
             sendMessage(session, gson.toJson(new Error("Game not found")));
             return;
         }
+        sessions.addSession(command.getGameID(), auth, session);
         Notification joinNotification = new Notification(username + " joined the game as an observer");
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
-        System.out.println("Done adding observer");
+        System.out.println("# Sessions: " + sessions.getSessionsForGameID(command.getGameID()).size());
     }
 
     private void leaveHandler(Session session, Leave leaveCommand) {
@@ -160,6 +175,10 @@ public class WebSocketHandler {
 
         try {
             ChessGame game = Objects.requireNonNull(SQLGameDAO.getGame(resignCommand.getGameID())).game();
+            if (game.getTeamTurn() == null) {
+                sendMessage(session, gson.toJson(new Error("Game already over")));
+                return;
+            }
             game.setTeamTurn(null);
             SQLGameDAO.updateGame(game, resignCommand.getGameID());
         } catch (DataAccessException e) {
@@ -169,7 +188,38 @@ public class WebSocketHandler {
 
         Notification joinNotification = new Notification(username + " resigned from the game. Opponent wins.");
         broadcastMessage(resignCommand.getGameID(), session, gson.toJson(joinNotification));
-        sendMessage(session, gson.toJson(new Notification("You have resigned. Opponent wins.")));
+    }
+
+    private void makeMoveHandler(Session session, MakeMove moveRequest) {
+        String username;
+        String auth;
+        try {
+            auth = moveRequest.getAuthString();
+            username = SQLAuthDAO.verifyAuth(auth).username();
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Unauthorized")));
+            return;
+        }
+
+        ChessGame game;
+        try {
+            game = Objects.requireNonNull(SQLGameDAO.getGame(moveRequest.getGameID())).game();
+            try {
+                game.makeMove(moveRequest.getMove());
+            } catch (InvalidMoveException e) {
+                sendMessage(session, gson.toJson(new Error(e.getMessage())));
+                return;
+            }
+            // Update game in database
+            SQLGameDAO.updateGame(game, moveRequest.getGameID());
+        } catch (DataAccessException e) {
+            sendMessage(session, gson.toJson(new Error("Error making move")));
+            return;
+        }
+
+        broadcastMessage(moveRequest.getGameID(), session, gson.toJson(new Notification(username + " made a move")));
+        sendMessage(session, gson.toJson(new LoadGame(game)));
+        broadcastMessage(moveRequest.getGameID(), session, gson.toJson(new LoadGame(game)));
     }
 
     private void sendMessage(Session session, String message) {

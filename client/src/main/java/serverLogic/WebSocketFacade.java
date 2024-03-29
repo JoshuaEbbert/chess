@@ -1,6 +1,7 @@
 package serverLogic;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -8,10 +9,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import com.google.gson.Gson;
 
 import webSocketMessages.serverMessages.Error;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.Leave;
-import webSocketMessages.userCommands.Resign;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import javax.websocket.Endpoint;
@@ -90,13 +88,22 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
         return true;
     }
 
+    public void makeMove(String auth, int gameID, ChessMove move) {
+        MakeMove makeMove = new MakeMove(auth, gameID, move);
+        try {
+            sendMessage(gson.toJson(makeMove));
+        } catch (Exception e) {
+            gameHandler.printMessage("Error: Could not send move to server");
+        }
+    }
+
     private void sendMessage(String message) throws Exception {
         this.session.getBasicRemote().sendText(message);
     }
     @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-        System.out.println("Message received! " + serverMessage.getServerMessageType());
+//        System.out.println("Message received! " + serverMessage.getServerMessageType());
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
                 gameHandler.updateGame(gson.fromJson(message, LoadGame.class).getGame());

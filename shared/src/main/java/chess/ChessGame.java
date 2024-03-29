@@ -87,6 +87,9 @@ public class ChessGame {
         if (piece == null) {
             throw new InvalidMoveException("Invalid move: no piece at start position");
         }
+        if (teamTurn == null) {
+            throw new InvalidMoveException("Invalid move: game is over");
+        }
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Invalid move: wrong team's turn");
         }
