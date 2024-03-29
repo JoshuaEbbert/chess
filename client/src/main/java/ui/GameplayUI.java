@@ -97,7 +97,7 @@ public class GameplayUI implements GameHandler {
                 out.println("Are you sure you want to resign? (y/n)");
                 if (scanner.nextLine().equals("y")) {
                     if (webSocket.resign(authorization, gameID)) {
-                        out.println("You have resigned. Leaving game.");
+                        out.println("Leaving game now.");
                         webSocket.leaveGame(authorization, gameID, teamColor); // not checking for success as the user is already committed to leaving
                         break;
                     } else {
@@ -201,7 +201,7 @@ public class GameplayUI implements GameHandler {
     }
 
     private static void printTop(ChessGame.TeamColor color) {
-        System.out.print("   ");
+        System.out.print("\n   ");
         if (color == ChessGame.TeamColor.BLACK) {
             for (int col = 8; col > 0; col--) {
                 System.out.print(" " + (char) (col + 96) + "  ");

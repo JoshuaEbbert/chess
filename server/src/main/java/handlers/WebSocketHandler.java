@@ -1,6 +1,7 @@
 package handlers;
 
 import chess.ChessGame;
+import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DBDAO.SQLAuthDAO;
@@ -173,6 +174,11 @@ public class WebSocketHandler {
             return;
         }
 
+        if (getTeamColorByAuth(auth, resignCommand.getGameID()) == null) {
+            sendMessage(session, gson.toJson(new Error("Can't resign from a game you're not playing")));
+            return;
+        }
+
         try {
             ChessGame game = Objects.requireNonNull(SQLGameDAO.getGame(resignCommand.getGameID())).game();
             if (game.getTeamTurn() == null) {
@@ -186,8 +192,10 @@ public class WebSocketHandler {
             return;
         }
 
-        Notification joinNotification = new Notification(username + " resigned from the game. Opponent wins.");
-        broadcastMessage(resignCommand.getGameID(), session, gson.toJson(joinNotification));
+        Notification resignNotification = new Notification(username + " resigned from the game. Opponent wins.");
+        broadcastMessage(resignCommand.getGameID(), session, gson.toJson(resignNotification));
+        resignNotification = new Notification("You resigned from the game. Opponent wins.");
+        sendMessage(session, gson.toJson(resignNotification));
     }
 
     private void makeMoveHandler(Session session, MakeMove moveRequest) {
@@ -204,13 +212,37 @@ public class WebSocketHandler {
         ChessGame game;
         try {
             game = Objects.requireNonNull(SQLGameDAO.getGame(moveRequest.getGameID())).game();
+            ChessGame.TeamColor teamColor = getTeamColorByAuth(auth, moveRequest.getGameID());
+            // Player can only move their pieces
+            ChessPiece movingPiece = game.getBoard().getPiece(moveRequest.getMove().getStartPosition());
+            if ((movingPiece.getTeamColor() != teamColor)) {
+                sendMessage(session, gson.toJson(new Error("Can't move that piece")));
+                return;
+            }
+
             try {
                 game.makeMove(moveRequest.getMove());
             } catch (InvalidMoveException e) {
                 sendMessage(session, gson.toJson(new Error(e.getMessage())));
                 return;
             }
-            // Update game in database
+            // check/checkmate
+            ChessGame.TeamColor opponentColor = teamColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+            if (game.isInCheck(opponentColor)) {
+                if (game.isInCheckmate(opponentColor)) {
+                    game.setTeamTurn(null);
+                    Notification checkmateNotification = new Notification("Checkmate! " + teamColor + " wins!");
+                    broadcastMessage(moveRequest.getGameID(), session, gson.toJson(checkmateNotification));
+                    checkmateNotification = new Notification("Checkmate! " + teamColor + " wins!");
+                    sendMessage(session, gson.toJson(checkmateNotification));
+                } else {
+                    Notification checkNotification = new Notification("Check!");
+                    broadcastMessage(moveRequest.getGameID(), session, gson.toJson(checkNotification));
+                    checkNotification = new Notification("Check!");
+                    sendMessage(session, gson.toJson(checkNotification));
+                }
+            }
+
             SQLGameDAO.updateGame(game, moveRequest.getGameID());
         } catch (DataAccessException e) {
             sendMessage(session, gson.toJson(new Error("Error making move")));
@@ -243,5 +275,23 @@ public class WebSocketHandler {
                 System.out.println("Skipping host client session");
             }
         }
+    }
+
+    private ChessGame.TeamColor getTeamColorByAuth(String auth, int gameID) {
+        try {
+            String username = SQLAuthDAO.verifyAuth(auth).username();
+            GameData gameData = SQLGameDAO.getGame(gameID);
+            if (gameData == null) {
+                return null;
+            }
+            if (gameData.whiteUsername().equals(username)) {
+                return ChessGame.TeamColor.WHITE;
+            } else if (gameData.blackUsername().equals(username)) {
+                return ChessGame.TeamColor.BLACK;
+            }
+        } catch (DataAccessException e) {
+            return null;
+        }
+        return null;
     }
 }
