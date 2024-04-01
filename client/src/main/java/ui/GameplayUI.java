@@ -127,13 +127,7 @@ public class GameplayUI implements GameHandler {
             for (int row = 1; row < 9; row++) {
                 System.out.print(row + " ");
                 for (int col = 8; col > 0; col--) {
-                    System.out.print("|");
-                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
-                    if (piece == null) {
-                        System.out.print("   ");
-                    } else {
-                        System.out.print(" " + piece.toChar() + " ");
-                    }
+                    printGameRow(game, row, col);
                 }
                 System.out.println("| " + row);
             }
@@ -141,18 +135,22 @@ public class GameplayUI implements GameHandler {
             for (int row = 8; row > 0; row--) {
                 System.out.print(row + " ");
                 for (int col = 1; col < 9; col++) {
-                    System.out.print("|");
-                    ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
-                    if (piece == null) {
-                        System.out.print("   ");
-                    } else {
-                        System.out.print(" " + piece.toChar() + " ");
-                    }
+                    printGameRow(game, row, col);
                 }
                 System.out.println("| " + row);
             }
         }
         printLetters(color);
+    }
+
+    private static void printGameRow(ChessGame game, int row, int col) {
+        System.out.print("|");
+        ChessPiece piece = game.getBoard().getPiece(new ChessPosition(row, col));
+        if (piece == null) {
+            System.out.print("   ");
+        } else {
+            System.out.print(" " + piece.toChar() + " ");
+        }
     }
 
     // Overloading showBoard to implement highlighting
