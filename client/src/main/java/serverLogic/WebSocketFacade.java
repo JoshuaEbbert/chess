@@ -116,15 +116,6 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
                 break;
         }
     }
-    @OnClose
-    public void onClose() {
-    }
-    @OnOpen
-    public void onOpen(Session session, EndpointConfig endpointConfig) {
-    }
-    @OnError
-    public void onError() {
-    }
 
     public static void main(String[] args) {
         WebSocketFacade webSocket = new WebSocketFacade(8080, "auth", new GameHandler() {
@@ -141,5 +132,10 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
         } catch (Exception e) {
             e.printStackTrace();
             }
+    }
+
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+
     }
 }
