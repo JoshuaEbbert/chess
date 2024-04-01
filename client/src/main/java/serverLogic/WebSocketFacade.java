@@ -100,7 +100,7 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
     private void sendMessage(String message) throws Exception {
         this.session.getBasicRemote().sendText(message);
     }
-    @OnMessage
+    @Override
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
 //        System.out.println("Message received! " + serverMessage.getServerMessageType());

@@ -113,8 +113,4 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
-
-    public static void clearDatabase() throws DataAccessException {
-
-    }
 }
