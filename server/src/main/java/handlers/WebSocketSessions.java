@@ -20,12 +20,6 @@ public class WebSocketSessions {
         sessions.get(gameID).put(auth, session);
     }
 
-    public void removeSessionFromGame(int gameID, String authtoken, Session session) {
-        if (sessions.containsKey(gameID)) {
-            sessions.get(gameID).remove(authtoken, session);
-        }
-    }
-
     public void removeSession(Session session) {
         for (HashMap<String, Session> gameSessions : sessions.values()) {
             gameSessions.values().removeIf(s -> s.equals(session));

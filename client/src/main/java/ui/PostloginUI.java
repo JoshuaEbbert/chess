@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class PostloginUI {
-    private final String EXIT_COMMAND = "logout";
-    private final String STATE = "[LOGGED IN]";
+    private static final String EXIT_COMMAND = "logout";
+    private static final String STATE = "[LOGGED IN]";
     private String username;
     private String authorization;
 
@@ -29,9 +29,9 @@ public class PostloginUI {
             out.print(STATE + " as " + username + " >>> ");
             input = scanner.nextLine();
 
-            String[] input_array = input.split(" ");
+            String[] inputArray = input.split(" ");
 
-            if (input_array[0].equals("help")) {
+            if (inputArray[0].equals("help")) {
                 out.println("Commands: ");
                 for (String option: new String[] {
                         "create <GAME_NAME> - create a new game",
@@ -43,27 +43,27 @@ public class PostloginUI {
                 }) {
                     out.println("\t" + option);
                 }
-            } else if (input_array[0].equals("create") && input_array.length == 2) {
+            } else if (inputArray[0].equals("create") && inputArray.length == 2) {
                 try {
                     if (games == null) {
                         games = server.listGames(authorization);
                     }
 
-                    int gameID = server.createGame(authorization, input_array[1]);
-                    games.add(Map.of("gameID", (double) gameID, "gameName", input_array[1]));
-                    out.println("Successfully created game #" + games.size() + " " + input_array[1]);
+                    int gameID = server.createGame(authorization, inputArray[1]);
+                    games.add(Map.of("gameID", (double) gameID, "gameName", inputArray[1]));
+                    out.println("Successfully created game #" + games.size() + " " + inputArray[1]);
                 } catch (Exception e) {
                     out.println(e.getMessage());
                 }
-            } else if (input_array[0].equals("list") && input_array.length == 1) {
+            } else if (inputArray[0].equals("list") && inputArray.length == 1) {
                 listGames(out, server);
-            } else if (input_array[0].equals("join") && input_array.length == 2) {
-                observeGame(input_array, out, scanner, server);
-            } else if (input_array[0].equals("join") && input_array.length == 3) {
-                joinGame(input_array, out, scanner, server);
-            } else if (input_array[0].equals("observe") && input_array.length == 2) {
-                observeGame(input_array, out, scanner, server);
-            } else if (input_array[0].equals(EXIT_COMMAND)) { // logout
+            } else if (inputArray[0].equals("join") && inputArray.length == 2) {
+                observeGame(inputArray, out, scanner, server);
+            } else if (inputArray[0].equals("join") && inputArray.length == 3) {
+                joinGame(inputArray, out, scanner, server);
+            } else if (inputArray[0].equals("observe") && inputArray.length == 2) {
+                observeGame(inputArray, out, scanner, server);
+            } else if (inputArray[0].equals(EXIT_COMMAND)) { // logout
                 try {
                     server.logout(authorization);
                     out.println("Successfully logged out!");

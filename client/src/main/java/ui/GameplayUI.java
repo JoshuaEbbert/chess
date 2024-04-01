@@ -7,14 +7,13 @@ import serverLogic.WebSocketFacade;
 
 import java.io.PrintStream;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
 public class GameplayUI implements GameHandler {
-    private final String EXIT_COMMAND = "leave";
-    private final String STATE = "[GAMEPLAY]";
+    private static final String EXIT_COMMAND = "leave";
+    private static final String STATE = "[GAMEPLAY]";
 
     private final String authorization;
     private PrintStream out;
@@ -33,9 +32,9 @@ public class GameplayUI implements GameHandler {
         String input = "";
         while (true) {
             out.print(STATE + " >>> ");
-            String[] input_array = scanner.nextLine().split(" ");
+            String[] inputArray = scanner.nextLine().split(" ");
             out.print(ERASE_SCREEN);
-            if (input_array[0].equals("help")) {
+            if (inputArray[0].equals("help")) {
                 out.println("""
                         Commands:\s
                         \thelp - show available commands,\s
@@ -44,9 +43,9 @@ public class GameplayUI implements GameHandler {
                         \tmove <from> <to> <promotion piece (default is none)> - move a piece. Position given by <column letter><row number>. Promotion piece ignored unless for an eligible move.\s
                         \tresign - must confirm. Forfeit and end the game
                         \thighlight <position> - highlight all the possible moves for a piece at the given position. If there is no piece, nothing happens""");
-            } else if (input_array[0].equals("highlight") && input_array.length == 2) {
+            } else if (inputArray[0].equals("highlight") && inputArray.length == 2) {
                 try {
-                    ChessPosition pos = strToPos(input_array[1]);
+                    ChessPosition pos = strToPos(inputArray[1]);
                     if (game.getBoard().getPiece(pos) != null) {
                         showBoard(game, teamColor, pos);
                     } else {
@@ -55,15 +54,15 @@ public class GameplayUI implements GameHandler {
                 } catch (Exception e) {
                     out.println("Error: Invalid position. Give position as <column letter><row number>. E.g. e4");
                 }
-            } else if (input_array[0].equals("redraw")) {
+            } else if (inputArray[0].equals("redraw")) {
                 showBoard(game, teamColor);
-            } else if (input_array[0].equals("move") && (input_array.length == 3 || input_array.length == 4)) {
-                ChessPosition from = strToPos(input_array[1]);
-                ChessPosition to = strToPos(input_array[2]);
+            } else if (inputArray[0].equals("move") && (inputArray.length == 3 || inputArray.length == 4)) {
+                ChessPosition from = strToPos(inputArray[1]);
+                ChessPosition to = strToPos(inputArray[2]);
 
                 ChessPiece.PieceType promotionType = null;
-                if (input_array.length == 4) {
-                    switch (input_array[3].toLowerCase()) {
+                if (inputArray.length == 4) {
+                    switch (inputArray[3].toLowerCase()) {
                         case "queen":
                             promotionType = ChessPiece.PieceType.QUEEN;
                             break;
@@ -88,7 +87,7 @@ public class GameplayUI implements GameHandler {
                 ChessMove move = new ChessMove(from, to, promotionType);
                 webSocket.makeMove(authorization, gameID, move);
 
-            } else if (input_array[0].equals("resign")) {
+            } else if (inputArray[0].equals("resign")) {
                 if (teamColor == null) {
                     out.println("Error: Cannot resign from a game you are not playing in.");
                     continue;
@@ -104,7 +103,7 @@ public class GameplayUI implements GameHandler {
                         out.println("Error resigning. Please try again.");
                     }
                 }
-            } else if (!input_array[0].equals(EXIT_COMMAND)) {
+            } else if (!inputArray[0].equals(EXIT_COMMAND)) {
                 out.println("Error: Invalid command. Type 'help' to see available commands.");
             } else if (webSocket.leaveGame(authorization, gameID, teamColor)) { // input is exit_command and leave was successful
                 break;
@@ -123,7 +122,7 @@ public class GameplayUI implements GameHandler {
 
     private static void showBoard(ChessGame game, ChessGame.TeamColor color) {
         if (color == null) { color = ChessGame.TeamColor.WHITE; }
-        printTop(color);
+        printLetters(color);
         if (color == ChessGame.TeamColor.BLACK) {
             for (int row = 1; row < 9; row++) {
                 System.out.print(row + " ");
@@ -153,7 +152,7 @@ public class GameplayUI implements GameHandler {
                 System.out.println("| " + row);
             }
         }
-        printBottom(color);
+        printLetters(color);
     }
 
     // Overloading showBoard to implement highlighting
@@ -163,20 +162,12 @@ public class GameplayUI implements GameHandler {
             validMoves.add(move.getEndPosition());
         }
 
-        printTop(color);
+        printLetters(color);
         if (color == ChessGame.TeamColor.BLACK) {
             for (int row = 1; row < 9; row++) {
                 System.out.print(row + " ");
                 for (int col = 8; col > 0; col--) {
-                    System.out.print("|");
-                    ChessPosition pos = new ChessPosition(row, col);
-                    if (validMoves.contains(pos)) {
-                        System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_BOLD + getPieceStr(game, pos) + "\u001B[0m");
-                    } else if (highlight.equals(pos)) {
-                        System.out.print(SET_BG_COLOR_RED + getPieceStr(game, pos) + "\u001B[0m");
-                    } else {
-                        System.out.print(getPieceStr(game, pos));
-                    }
+                    printWithHighlight(game, highlight, validMoves, row, col);
                 }
                 System.out.println("| " + row);
             }
@@ -184,43 +175,33 @@ public class GameplayUI implements GameHandler {
             for (int row = 8; row > 0; row--) {
                 System.out.print(row + " ");
                 for (int col = 1; col < 9; col++) {
-                    System.out.print("|");
-                    ChessPosition pos = new ChessPosition(row, col);
-                    if (validMoves.contains(pos)) {
-                        System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_BOLD + getPieceStr(game, pos) + "\u001B[0m");
-                    } else if (highlight.equals(pos)) {
-                        System.out.print(SET_BG_COLOR_RED + getPieceStr(game, pos) + "\u001B[0m");
-                    } else {
-                        System.out.print(getPieceStr(game, pos));
-                    }
+                    printWithHighlight(game, highlight, validMoves, row, col);
                 }
                 System.out.println("| " + row);
             }
         }
-        printBottom(color);
+        printLetters(color);
     }
 
-    private static void printTop(ChessGame.TeamColor color) {
+    private static void printWithHighlight(ChessGame game, ChessPosition highlight, HashSet<ChessPosition> validMoves, int row, int col) {
+        System.out.print("|");
+        ChessPosition pos = new ChessPosition(row, col);
+        if (validMoves.contains(pos)) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY + SET_TEXT_BOLD + getPieceStr(game, pos) + "\u001B[0m");
+        } else if (highlight.equals(pos)) {
+            System.out.print(SET_BG_COLOR_RED + getPieceStr(game, pos) + "\u001B[0m");
+        } else {
+            System.out.print(getPieceStr(game, pos));
+        }
+    }
+
+    private static void printLetters(ChessGame.TeamColor color) {
         System.out.print("\n   ");
         if (color == ChessGame.TeamColor.BLACK) {
             for (int col = 8; col > 0; col--) {
                 System.out.print(" " + (char) (col + 96) + "  ");
             }
         } else { // White on bottom is default
-            for (int col = 1; col < 9; col++) {
-                System.out.print(" " + (char) (col + 96) + "  ");
-            }
-        }
-        System.out.println();
-    }
-
-    private static void printBottom(ChessGame.TeamColor color) {
-        System.out.print("   ");
-        if (color == ChessGame.TeamColor.BLACK) {
-            for (int col = 8; col > 0; col--) {
-                System.out.print(" " + (char) (col + 96) + "  ");
-            }
-        } else {
             for (int col = 1; col < 9; col++) {
                 System.out.print(" " + (char) (col + 96) + "  ");
             }
