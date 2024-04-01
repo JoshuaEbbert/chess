@@ -7,6 +7,7 @@ import dataAccess.DatabaseManager;
 import model.GameData;
 import model.UserData;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -51,17 +52,21 @@ public class SQLGameDAO implements dataAccess.GameDAO {
         try (var conn = DatabaseManager.getConnection()) {
             var stmt = conn.prepareStatement("SELECT gameName, whiteUsername, blackUsername, gameID, game FROM games WHERE gameName = ?");
             stmt.setString(1, gameName);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String gameJSON = rs.getString("game");
-                ChessGame game = gson.fromJson(gameJSON, ChessGame.class);
-                return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), game);
-            } else {
-                return null;
-            }
+            return getGameData(stmt);
         } catch (SQLException ex) {
             throw new DataAccessException("Error getting game: " + ex.getMessage());
+        }
+    }
+
+    private static GameData getGameData(PreparedStatement stmt) throws SQLException {
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            String gameJSON = rs.getString("game");
+            ChessGame game = gson.fromJson(gameJSON, ChessGame.class);
+            return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), game);
+        } else {
+            return null;
         }
     }
 
@@ -69,15 +74,7 @@ public class SQLGameDAO implements dataAccess.GameDAO {
         try (var conn = DatabaseManager.getConnection()) {
             var stmt = conn.prepareStatement("SELECT gameName, whiteUsername, blackUsername, gameID, game FROM games WHERE gameID = ?");
             stmt.setInt(1, gameID);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String gameJSON = rs.getString("game");
-                ChessGame game = gson.fromJson(gameJSON, ChessGame.class);
-                return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), game);
-            } else {
-                return null;
-            }
+            return getGameData(stmt);
         } catch (SQLException ex) {
             throw new DataAccessException("Error getting game: " + ex.getMessage());
         }
