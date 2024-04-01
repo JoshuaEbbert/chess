@@ -40,10 +40,8 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        System.out.println("Message received: " + message);
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         // Call appropriate handler
-        System.out.println("Command type: " + command.getCommandType());
         switch (command.getCommandType()) {
             case JOIN_PLAYER:
                 JoinPlayer joinPlayer = gson.fromJson(message, JoinPlayer.class);
@@ -60,12 +58,10 @@ public class WebSocketHandler {
             case LEAVE:
                 Leave leaveCommand = gson.fromJson(message, Leave.class);
                 leaveHandler(session, leaveCommand);
-                System.out.println("Done with leave case");
                 break;
             case RESIGN:
                 Resign resignCommand = gson.fromJson(message, Resign.class);
                 resignHandler(session, resignCommand);
-                System.out.println("Done with resign case");
                 break;
         }
     }
@@ -104,8 +100,6 @@ public class WebSocketHandler {
         sessions.addSession(command.getGameID(), auth, session);
         Notification joinNotification = new Notification(username + " joined the game as " + command.getPlayerColor().toString().toLowerCase());
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
-        System.out.println("Joined player " + username + " to game " + command.getGameID());
-        System.out.println("Current #Sessions: " + sessions.getSessionsForGameID(command.getGameID()).size());
     }
 
     private void joinObserverHandler(Session session, JoinObserver command) {
@@ -134,7 +128,6 @@ public class WebSocketHandler {
         sessions.addSession(command.getGameID(), auth, session);
         Notification joinNotification = new Notification(username + " joined the game as an observer");
         broadcastMessage(command.getGameID(), session, gson.toJson(joinNotification));
-        System.out.println("# Sessions: " + sessions.getSessionsForGameID(command.getGameID()).size());
     }
 
     private void leaveHandler(Session session, Leave leaveCommand) {
@@ -160,7 +153,6 @@ public class WebSocketHandler {
         Notification joinNotification = new Notification(username + " left the game");
         broadcastMessage(leaveCommand.getGameID(), session, gson.toJson(joinNotification));
         sessions.removeSession(session);
-        System.out.println("Done leaving game");
     }
 
     private void resignHandler(Session session, Resign resignCommand) {
@@ -263,16 +255,11 @@ public class WebSocketHandler {
     }
 
     private void broadcastMessage(int gameID, Session hostClient, String message) {
-        System.out.println("In broadcastMessage");
         HashMap<String, Session> gameSessions = sessions.getSessionsForGameID(gameID);
-        System.out.println("Number of sessions for game " + gameID + ": " + gameSessions.size());
 
         for (Session s: gameSessions.values()) {
             if (!s.equals(hostClient)) {
-                System.out.println("Sending message to session " + s);
                 sendMessage(s, message);
-            } else {
-                System.out.println("Skipping host client session");
             }
         }
     }

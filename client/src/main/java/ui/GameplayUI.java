@@ -16,7 +16,7 @@ public class GameplayUI implements GameHandler {
     private static final String STATE = "[GAMEPLAY]";
 
     private final String authorization;
-    private PrintStream out;
+    private final PrintStream out;
     private ChessGame game = new ChessGame();
     private final ChessGame.TeamColor teamColor;
     private final int gameID;

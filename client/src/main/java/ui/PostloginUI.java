@@ -77,10 +77,10 @@ public class PostloginUI {
         };
     }
 
-    private void joinGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+    private void joinGame(String[] inputArray, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
-            int gameID = getGameID(server, input_array, out);
-            String color = input_array[2];
+            int gameID = getGameID(server, inputArray, out);
+            String color = inputArray[2];
 
             if (!color.equals("WHITE") && !color.equals("BLACK")) {
                 throw new Exception("Invalid color");
@@ -100,9 +100,9 @@ public class PostloginUI {
         }
     }
 
-    private void observeGame(String[] input_array, PrintStream out, Scanner scanner, ServerFacade server) {
+    private void observeGame(String[] inputArray, PrintStream out, Scanner scanner, ServerFacade server) {
         try {
-            int gameID = getGameID(server, input_array, out);
+            int gameID = getGameID(server, inputArray, out);
             server.joinGame(authorization, null, gameID);
             GameplayUI game = new GameplayUI(authorization, gameID, null, out); // White passed as default color to set board display
             WebSocketFacade webSocket = new WebSocketFacade(8080, authorization, (GameHandler) game);
@@ -134,21 +134,21 @@ public class PostloginUI {
         }
     }
 
-    private int getGameID(ServerFacade server, String[] input_array, PrintStream out) throws Exception {
+    private int getGameID(ServerFacade server, String[] inputArray, PrintStream out) throws Exception {
         if (games == null) {
             games = server.listGames(authorization);
         }
 
         try {
-            Integer.parseInt(input_array[1]);
+            Integer.parseInt(inputArray[1]);
         } catch (Exception e) {
             throw new Exception("To join please specify a game number");
         }
 
-        if (games == null || Integer.parseInt(input_array[1]) < 1 || Integer.parseInt(input_array[1]) > games.size()) {
+        if (games == null || Integer.parseInt(inputArray[1]) < 1 || Integer.parseInt(inputArray[1]) > games.size()) {
             throw new Exception("Invalid game ID");
         }
 
-        return (int) ((Double) games.get(Integer.parseInt(input_array[1]) - 1).get("gameID")).doubleValue();
+        return (int) ((Double) games.get(Integer.parseInt(inputArray[1]) - 1).get("gameID")).doubleValue();
     }
 }
