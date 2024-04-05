@@ -1,7 +1,5 @@
 package requests;
 
-import requests.Request;
-
 public class JoinGameRequest extends Request {
     private final int gameID;
     private final String playerColor;
